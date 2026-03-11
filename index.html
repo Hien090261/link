@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Dashboard nhiệm vụ</title>
+<title>Task Dashboard</title>
 <style>
 
 body{
 font-family:Arial;
-background:#0f172a;
+background:#0f1c2e;
 color:white;
 text-align:center;
+padding-top:100px;
 }
 
 .box{
-background:#1e293b;
-padding:20px;
-margin:20px;
-border-radius:10px;
+background:#1e2b44;
+padding:30px;
 width:300px;
-display:inline-block;
+margin:auto;
+border-radius:10px;
 }
 
 button{
-background:#6366f1;
-border:none;
 padding:10px 20px;
+margin-top:10px;
+border:none;
+background:#6c7cff;
 color:white;
 border-radius:5px;
 cursor:pointer;
+}
+
+input{
+padding:10px;
+width:90%;
+margin-top:10px;
 }
 
 </style>
@@ -34,36 +41,78 @@ cursor:pointer;
 
 <body>
 
-<h1>Task Dashboard</h1>
-
 <div class="box">
-<h3>Link nhiệm vụ</h3>
-<p>Earn 10 points</p>
+
+<h2>Register / Login</h2>
+
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+
+<br><br>
+
 <button onclick="earn()">Earn</button>
+
+<p id="status"></p>
+
 </div>
 
 <script>
 
 function earn(){
 window.open("https://google.com");
+document.getElementById("status").innerText="Task completed!";
 }
 
 </script>
+
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
-  authDomain: "link-task-32a86.firebaseapp.com",
-  projectId: "link-task-32a86",
-  storageBucket: "link-task-32a86.firebasestorage.app",
-  messagingSenderId: "859078395434",
-  appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
+apiKey: "AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
+authDomain: "link-task-32a86.firebaseapp.com",
+projectId: "link-task-32a86",
+storageBucket: "link-task-32a86.firebasestorage.app",
+messagingSenderId: "859078395434",
+appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+window.register = function(){
+
+let email=document.getElementById("email").value;
+let password=document.getElementById("password").value;
+
+createUserWithEmailAndPassword(auth,email,password)
+.then(()=>{
+alert("Register success");
+})
+.catch(e=>alert(e.message));
+
+}
+
+window.login = function(){
+
+let email=document.getElementById("email").value;
+let password=document.getElementById("password").value;
+
+signInWithEmailAndPassword(auth,email,password)
+.then(()=>{
+alert("Login success");
+})
+.catch(e=>alert(e.message));
+
+}
+
 </script>
+
 </body>
 </html>
