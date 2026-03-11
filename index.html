@@ -501,10 +501,10 @@
                          <table class="w-full text-left">
                              <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
                                  <tr>
-                                     <th class="pb-6 px-4">Email</th>
+                                     <th class="pb-6 px-4">Thông Tin Người Dùng</th>
                                      <th class="pb-6 px-4">Số Dư</th>
-                                     <th class="pb-6 px-4">Clicks/Links</th>
-                                     <th class="pb-6 px-4">Trạng Thái</th>
+                                     <th class="pb-6 px-4">Thống Kê</th>
+                                     <th class="pb-6 px-4">Ngày Tham Gia</th>
                                      <th class="pb-6 px-4">Hành Động</th>
                                  </tr>
                              </thead>
@@ -633,6 +633,11 @@
                     alert('Tài khoản của bạn đã bị khóa! Vui lòng liên hệ Admin.');
                     auth.signOut();
                     return;
+                }
+
+                // Tự động cập nhật email nếu bị thiếu (cho các tài khoản cũ)
+                if (userDoc.exists && !data.email) {
+                    await db.collection('users').doc(user.uid).update({ email: user.email });
                 }
 
                 showLoginBtn.classList.add('hidden');
@@ -818,19 +823,31 @@
                  snap.forEach(doc => {
                      const data = doc.data();
                      const isBanned = data.status === 'banned';
+                     const joinDate = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
                      const tr = document.createElement('tr');
                      tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
                      tr.innerHTML = `
-                         <td class="py-4 px-4 text-xs font-bold text-white">
-                            ${data.email || 'N/A'} 
-                            ${data.email === ADMIN_EMAIL ? '<span class="text-[10px] bg-blue-500/20 text-blue-400 px-1 rounded ml-1">ADMIN</span>' : ''}
-                         </td>
-                         <td class="py-4 px-4 font-black text-green-400">${(data.balance || 0).toFixed(2)} $</td>
-                         <td class="py-4 px-4 text-xs text-slate-400">${data.totalClicks || 0} / ${data.totalLinks || 0}</td>
-                         <td class="py-4 px-4 text-xs font-bold ${isBanned ? 'text-red-500' : 'text-green-500'}">${isBanned ? 'Đã chặn' : 'Hoạt động'}</td>
                          <td class="py-4 px-4">
+                            <div class="text-xs font-bold text-white flex items-center gap-2">
+                                ${data.email || 'N/A'} 
+                                ${data.email === ADMIN_EMAIL ? '<span class="text-[8px] bg-blue-500/20 text-blue-400 px-1 rounded">ADMIN</span>' : ''}
+                                <span class="text-[10px] font-bold ${isBanned ? 'text-red-500' : 'text-green-500'}">● ${isBanned ? 'Banned' : 'Active'}</span>
+                            </div>
+                            <div class="text-[9px] text-slate-500 font-mono mt-1">UID: ${doc.id}</div>
+                         </td>
+                         <td class="py-4 px-4">
+                            <div class="font-black text-green-400">${(data.balance || 0).toFixed(2)} $</div>
+                            <button onclick="editBalance('${doc.id}', ${(data.balance || 0)})" class="text-[9px] text-blue-400 hover:underline">Sửa số dư</button>
+                         </td>
+                         <td class="py-4 px-4 text-[10px] text-slate-400">
+                            <div>Clicks: <strong>${data.totalClicks || 0}</strong></div>
+                            <div>Links: <strong>${data.totalLinks || 0}</strong></div>
+                            <div>Refs: <strong>${data.referredCount || 0}</strong></div>
+                         </td>
+                         <td class="py-4 px-4 text-xs text-slate-500">${joinDate}</td>
+                         <td class="py-4 px-4 flex flex-col gap-2">
                              ${data.email !== ADMIN_EMAIL ? `
-                                 <button onclick="toggleUserBan('${doc.id}', ${isBanned})" class="${isBanned ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'} px-3 py-1 rounded-lg text-[10px] font-black transition">
+                                 <button onclick="toggleUserBan('${doc.id}', ${isBanned})" class="${isBanned ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'} px-3 py-1 rounded-lg text-[9px] font-black transition">
                                      ${isBanned ? 'MỞ CHẶN' : 'CHẶN USER'}
                                  </button>
                              ` : ''}
@@ -848,6 +865,15 @@
              const action = isCurrentlyBanned ? 'Mở chặn' : 'Chặn';
              if (confirm(`${action} người dùng này?`)) {
                  await db.collection('users').doc(id).update({ status: isCurrentlyBanned ? 'active' : 'banned' });
+                 loadAdminUsers();
+             }
+         };
+
+         window.editBalance = async (id, currentBalance) => {
+             const newBal = prompt("Nhập số dư mới cho user:", currentBalance);
+             if (newBal !== null && !isNaN(newBal)) {
+                 await db.collection('users').doc(id).update({ balance: parseFloat(newBal) });
+                 alert("Đã cập nhật số dư!");
                  loadAdminUsers();
              }
          };
