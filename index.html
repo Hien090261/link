@@ -50,8 +50,6 @@ border-radius:6px;
 
 <body>
 
-<!-- LOGIN -->
-
 <div class="box" id="loginBox">
 
 <h2>Login</h2>
@@ -63,8 +61,6 @@ border-radius:6px;
 <button onclick="register()">Register</button>
 
 </div>
-
-<!-- DASHBOARD -->
 
 <div class="box" id="taskBox" style="display:none;">
 
@@ -96,28 +92,23 @@ Upto 2 Steps
 
 <script>
 
-let count = 0
-let canVerify = false
+let canVerify=false
 
-let upto3 = [
-
+let upto3=[
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
 "https://uptolink.one/PY6BEE"
-
 ]
 
-let upto2 = [
-
+let upto2=[
 "https://uptolink.one/1s2VD",
 "https://uptolink.one/E9Mi2Kb",
 "https://uptolink.one/2mPbEHb"
-
 ]
 
 function earn3(){
 
-let random = Math.floor(Math.random()*upto3.length)
+let random=Math.floor(Math.random()*upto3.length)
 
 window.open(upto3[random])
 
@@ -127,7 +118,7 @@ startVerify()
 
 function earn2(){
 
-let random = Math.floor(Math.random()*upto2.length)
+let random=Math.floor(Math.random()*upto2.length)
 
 window.open(upto2[random])
 
@@ -137,37 +128,15 @@ startVerify()
 
 function startVerify(){
 
-canVerify = false
+canVerify=false
 
-alert("Complete the link then verify after 50 seconds")
+alert("Complete the task and come back to verify.")
 
 setTimeout(()=>{
 
-canVerify = true
-
-alert("You can now verify the task")
+canVerify=true
 
 },50000)
-
-}
-
-function verifyTask(){
-
-if(canVerify){
-
-count++
-
-document.getElementById("count").innerText = count
-
-alert("Task verified!")
-
-canVerify = false
-
-}else{
-
-alert("Wait 50 seconds before verifying!")
-
-}
 
 }
 
@@ -176,35 +145,45 @@ alert("Wait 50 seconds before verifying!")
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
 
-const firebaseConfig = {
+import { getFirestore,doc,setDoc,getDoc,updateDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
-apiKey: "AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
-authDomain: "link-task-32a86.firebaseapp.com",
-projectId: "link-task-32a86",
-storageBucket: "link-task-32a86.firebasestorage.app",
-messagingSenderId: "859078395434",
-appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
-
+const firebaseConfig={
+apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
+authDomain:"link-task-32a86.firebaseapp.com",
+projectId:"link-task-32a86",
+storageBucket:"link-task-32a86.firebasestorage.app",
+messagingSenderId:"859078395434",
+appId:"1:859078395434:web:4692a5d5e09d7ab4716553"
 }
 
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
+const app=initializeApp(firebaseConfig)
+const auth=getAuth(app)
+const db=getFirestore(app)
 
-window.register = function(){
+let userId=null
+
+window.register=async function(){
 
 let email=document.getElementById("email").value
 let password=document.getElementById("password").value
 
-createUserWithEmailAndPassword(auth,email,password)
-.then(()=>alert("Register success"))
-.catch(e=>alert(e.message))
+let user=await createUserWithEmailAndPassword(auth,email,password)
+
+await setDoc(doc(db,"users",user.user.uid),{
+
+earn:0
+
+})
+
+alert("Register success")
 
 }
 
-window.login = function(){
+window.login=function(){
 
 let email=document.getElementById("email").value
 let password=document.getElementById("password").value
@@ -214,20 +193,58 @@ signInWithEmailAndPassword(auth,email,password)
 
 }
 
-window.logout = function(){
+window.logout=function(){
 
 signOut(auth)
 
 }
 
-onAuthStateChanged(auth,(user)=>{
+window.verifyTask=async function(){
+
+if(!canVerify){
+
+alert("Task not completed yet. Please finish the link.")
+
+return
+
+}
+
+let ref=doc(db,"users",userId)
+
+let snap=await getDoc(ref)
+
+let data=snap.data()
+
+let newEarn=data.earn+1
+
+await updateDoc(ref,{earn:newEarn})
+
+document.getElementById("count").innerText=newEarn
+
+alert("Task completed!")
+
+canVerify=false
+
+}
+
+onAuthStateChanged(auth,async(user)=>{
 
 if(user){
+
+userId=user.uid
 
 document.getElementById("loginBox").style.display="none"
 document.getElementById("taskBox").style.display="block"
 
 document.getElementById("user").innerText="Logged in: "+user.email
+
+let snap=await getDoc(doc(db,"users",user.uid))
+
+if(snap.exists()){
+
+document.getElementById("count").innerText=snap.data().earn
+
+}
 
 }else{
 
