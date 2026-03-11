@@ -84,7 +84,7 @@
                 <i class="fa-solid fa-building-columns"></i>
                 <span>Other Sites To Earn Money / Những web/app khác kiếm thêm thu nhập</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('affiliate')">
                 <i class="fa-solid fa-users"></i>
                 <span>Affiliate (Giới Thiệu Bạn Bè)</span>
             </div>
@@ -92,7 +92,7 @@
                 <i class="fa-solid fa-trophy"></i>
                 <span>Contest (Đua Top Giới Thiệu)</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('withdraw')">
                 <i class="fa-solid fa-wallet"></i>
                 <span>Rút Tiền (For VietNam)</span>
             </div>
@@ -223,22 +223,158 @@
             </div>
         </section>
 
-        <!-- SECTION: ADMIN -->
-        <section id="admin-section" class="hidden">
-            <div class="glass-card p-10 overflow-hidden">
-                <h2 class="text-2xl font-black text-white mb-8">Quản Lý Toàn Bộ Hệ Thống</h2>
+        <!-- SECTION: AFFILIATE (GIỚI THIỆU) -->
+        <section id="affiliate-section" class="hidden space-y-8">
+            <div class="glass-card p-10 text-center space-y-6">
+                <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 text-3xl mx-auto"><i class="fa-solid fa-users"></i></div>
+                <h2 class="text-3xl font-black text-white">Chương Trình Giới Thiệu</h2>
+                <p class="text-slate-400 max-w-lg mx-auto">Nhận ngay <strong>10% hoa hồng</strong> trọn đời từ thu nhập của những người bạn giới thiệu tham gia hệ thống.</p>
+                
+                <div class="max-w-2xl mx-auto p-6 bg-slate-900/50 rounded-2xl border border-slate-700 space-y-4">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest text-left">Link Giới Thiệu Của Bạn</p>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" id="refLinkOutput" readonly class="flex-1 bg-slate-800 border-none px-5 py-4 rounded-xl text-blue-400 font-bold outline-none" value="Đang tải link...">
+                        <button onclick="copyRefLink()" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition">Copy Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-8 flex items-center gap-6">
+                    <div class="p-4 bg-purple-500/10 rounded-2xl text-purple-500 text-2xl"><i class="fa-solid fa-user-plus"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Tổng Người Giới Thiệu</p>
+                        <h3 id="stat-total-ref" class="text-3xl font-black text-white">0</h3>
+                    </div>
+                </div>
+                <div class="glass-card p-8 flex items-center gap-6">
+                    <div class="p-4 bg-orange-500/10 rounded-2xl text-orange-500 text-2xl"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Hoa Hồng Nhận Được</p>
+                        <h3 id="stat-ref-earnings" class="text-3xl font-black text-orange-400">0.00 $</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-10">
+                <h3 class="text-xl font-black text-white mb-6">Danh Sách Người Bạn Giới Thiệu</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
                             <tr>
-                                <th class="pb-6 px-4">Link Gốc</th>
-                                <th class="pb-6 px-4">ID</th>
-                                <th class="pb-6 px-4">Người Tạo</th>
-                                <th class="pb-6 px-4">Hành Động</th>
+                                <th class="pb-6 px-4">Email</th>
+                                <th class="pb-6 px-4">Ngày Tham Gia</th>
+                                <th class="pb-6 px-4">Hoa Hồng</th>
                             </tr>
                         </thead>
-                        <tbody id="links-table-body" class="text-sm"></tbody>
+                        <tbody id="ref-table-body" class="text-sm">
+                            <tr><td colspan="3" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>
+                        </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: WITHDRAW (RÚT TIỀN) -->
+        <section id="withdraw-section" class="hidden space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-8 md:col-span-1">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Số Dư Khả Dụng</p>
+                    <h3 id="withdraw-balance" class="text-4xl font-black text-green-400 mb-6">0.00 $</h3>
+                    <div class="p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20 text-blue-400 text-xs leading-relaxed">
+                        <i class="fa-solid fa-circle-info mr-2"></i>
+                        Số dư tối thiểu để rút là <strong>2.00 $</strong>. Thời gian xử lý từ 24h - 48h.
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 md:col-span-2">
+                    <h3 class="text-xl font-black text-white mb-6">Yêu Cầu Rút Tiền</h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Phương Thức</label>
+                                <select id="withdrawMethod" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                                    <option value="Momo">Ví Momo (VN)</option>
+                                    <option value="Bank">Ngân Hàng (VN)</option>
+                                    <option value="ZaloPay">ZaloPay (VN)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Số Tiền (USD)</label>
+                                <input type="number" id="withdrawAmount" placeholder="Min 2.00 $" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Thông Tin Tài Khoản (SĐT / STK / Tên)</label>
+                            <input type="text" id="withdrawAccount" placeholder="Ví dụ: 0987654321 - NGUYEN VAN A" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                        </div>
+                        <button id="withdrawSubmitBtn" class="w-full accent-gradient font-black py-5 rounded-2xl text-white shadow-xl shadow-blue-500/20 hover:scale-[1.02] transition">GỬI YÊU CẦU RÚT TIỀN</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-10">
+                <h3 class="text-xl font-black text-white mb-6">Lịch Sử Rút Tiền</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                            <tr>
+                                <th class="pb-6 px-4">Ngày Yêu Cầu</th>
+                                <th class="pb-6 px-4">Số Tiền</th>
+                                <th class="pb-6 px-4">Phương Thức</th>
+                                <th class="pb-6 px-4">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdraw-table-body" class="text-sm">
+                            <tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADMIN -->
+        <section id="admin-section" class="hidden space-y-8">
+            <div class="glass-card p-10 overflow-hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black text-white">Quản Lý Toàn Bộ Hệ Thống</h2>
+                    <div class="flex gap-4">
+                        <button onclick="loadAdminLinks()" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-blue-600/30 transition">Link Đã Tạo</button>
+                        <button onclick="loadAdminWithdrawals()" class="bg-purple-600/20 text-purple-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-purple-600/30 transition">Yêu Cầu Rút Tiền</button>
+                    </div>
+                </div>
+
+                <div id="admin-links-view">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                                <tr>
+                                    <th class="pb-6 px-4">Link Gốc</th>
+                                    <th class="pb-6 px-4">ID</th>
+                                    <th class="pb-6 px-4">Người Tạo</th>
+                                    <th class="pb-6 px-4">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="links-table-body" class="text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-withdrawals-view" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                                <tr>
+                                    <th class="pb-6 px-4">Người Rút</th>
+                                    <th class="pb-6 px-4">Số Tiền</th>
+                                    <th class="pb-6 px-4">Phương Thức / Thông Tin</th>
+                                    <th class="pb-6 px-4">Trạng Thái</th>
+                                    <th class="pb-6 px-4">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-withdraw-table-body" class="text-sm"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -328,7 +464,16 @@
                 if (isLoginMode) await auth.signInWithEmailAndPassword(email, pass);
                 else {
                     const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection('users').doc(cred.user.uid).set({ balance: 0, totalClicks: 0, totalLinks: 0 });
+                    const refId = new URLSearchParams(window.location.search).get('ref');
+                    const userData = { 
+                        email: email,
+                        balance: 0, 
+                        totalClicks: 0, 
+                        totalLinks: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if (refId) userData.referredBy = refId;
+                    await db.collection('users').doc(cred.user.uid).set(userData);
                 }
                 toggleAuthModal(false);
             } catch (e) { alert('Lỗi: ' + e.message); }
@@ -382,14 +527,26 @@
             showSection('redirect');
             db.collection('links').doc(linkId).get().then(doc => {
                 if (doc.exists) startStep(1, () => startStep(2, () => startStep(3, async () => {
-                    await db.collection('users').doc(doc.data().creatorId).update({
+                    const data = doc.data();
+                    // Thưởng cho người tạo link
+                    await db.collection('users').doc(data.creatorId).update({
                         balance: firebase.firestore.FieldValue.increment(EARN_PER_CLICK),
                         totalClicks: firebase.firestore.FieldValue.increment(1)
                     });
+                    
+                    // Thưởng 10% cho người giới thiệu của người tạo link (nếu có)
+                    const creatorDoc = await db.collection('users').doc(data.creatorId).get();
+                    if (creatorDoc.exists && creatorDoc.data().referredBy) {
+                        const refId = creatorDoc.data().referredBy;
+                        await db.collection('users').doc(refId).update({
+                            balance: firebase.firestore.FieldValue.increment(EARN_PER_CLICK * 0.1)
+                        });
+                    }
+
                     await db.collection('links').doc(linkId).update({ clicks: firebase.firestore.FieldValue.increment(1) });
                     document.getElementById('countdown-area').classList.add('hidden');
                     document.getElementById('final-cta').classList.remove('hidden');
-                    document.getElementById('targetBtn').href = doc.data().target;
+                    document.getElementById('targetBtn').href = data.target;
                 })));
             });
         }
@@ -423,6 +580,8 @@
         }
 
         async function loadAdminLinks() {
+            document.getElementById('admin-links-view').classList.remove('hidden');
+            document.getElementById('admin-withdrawals-view').classList.add('hidden');
             const tbody = document.getElementById('links-table-body');
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10">Đang tải...</td></tr>';
             const snap = await db.collection('links').orderBy('createdAt', 'desc').get();
@@ -436,14 +595,176 @@
             });
         }
 
+        async function loadAdminWithdrawals() {
+            document.getElementById('admin-links-view').classList.add('hidden');
+            document.getElementById('admin-withdrawals-view').classList.remove('hidden');
+            const tbody = document.getElementById('admin-withdraw-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-slate-500">Đang tải yêu cầu...</td></tr>';
+            
+            const snap = await db.collection('withdrawals').orderBy('createdAt', 'desc').get();
+            if (snap.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-slate-500">Không có yêu cầu rút tiền nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
+                
+                tr.innerHTML = `
+                    <td class="py-4 px-4 text-xs font-bold text-white">${data.email}</td>
+                    <td class="py-4 px-4 font-black text-green-400">${data.amount.toFixed(2)} $</td>
+                    <td class="py-4 px-4">
+                        <div class="text-[10px] text-slate-500 font-bold uppercase">${data.method}</div>
+                        <div class="text-sm text-slate-300 font-mono">${data.account}</div>
+                    </td>
+                    <td class="py-4 px-4 ${statusClass} font-bold text-xs">${data.status}</td>
+                    <td class="py-4 px-4 flex gap-2">
+                        ${data.status === 'Đang xử lý' ? `
+                            <button onclick="updateWithdrawStatus('${doc.id}', 'Hoàn thành')" class="bg-green-600/20 text-green-400 px-3 py-1 rounded-lg text-[10px] font-black hover:bg-green-600/40 transition">DUYỆT</button>
+                            <button onclick="updateWithdrawStatus('${doc.id}', 'Từ chối')" class="bg-red-600/20 text-red-400 px-3 py-1 rounded-lg text-[10px] font-black hover:bg-red-600/40 transition">HỦY</button>
+                        ` : '<span class="text-slate-600 text-[10px]">Đã xử lý</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.updateWithdrawStatus = async (id, status) => {
+            if (confirm(`Xác nhận ${status} yêu cầu này?`)) {
+                if (status === 'Từ chối') {
+                    // Trả lại tiền cho user nếu từ chối
+                    const wDoc = await db.collection('withdrawals').doc(id).get();
+                    const wData = wDoc.data();
+                    await db.collection('users').doc(wData.userId).update({
+                        balance: firebase.firestore.FieldValue.increment(wData.amount)
+                    });
+                }
+                await db.collection('withdrawals').doc(id).update({ status: status });
+                loadAdminWithdrawals();
+            }
+        };
+
         window.deleteLink = async (id) => { if (confirm('Xóa?')) { await db.collection('links').doc(id).delete(); loadAdminLinks(); } };
 
         function showSection(name) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`${name}-section`).classList.remove('hidden');
-            document.getElementById('page-title').textContent = name === 'admin' ? 'Quản Trị Hệ Thống' : 'Bảng Điều Khiển';
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            const section = document.getElementById(`${name}-section`);
+            if (section) section.classList.remove('hidden');
+
+            // Update page titles
+            const titles = {
+                'home': 'Bảng Điều Khiển',
+                'affiliate': 'Giới Thiệu Bạn Bè',
+                'withdraw': 'Rút Tiền Hệ Thống',
+                'admin': 'Quản Trị Hệ Thống'
+            };
+            document.getElementById('page-title').textContent = titles[name] || 'Bảng Điều Khiển';
+            document.getElementById('page-subtitle').textContent = name === 'home' ? 'Chào mừng trở lại!' : 'Khu vực thành viên';
+
             if (name === 'admin') loadAdminLinks();
+            if (name === 'affiliate') loadAffiliateData();
+            if (name === 'withdraw') loadWithdrawData();
+
+            // Set active sidebar item
+            const sidebarItems = document.querySelectorAll('.nav-item');
+            sidebarItems.forEach(item => {
+                if (item.getAttribute('onclick')?.includes(`'${name}'`)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Close mobile menu
+            document.querySelector('.sidebar').classList.remove('active');
         }
+
+        async function loadAffiliateData() {
+            if (!auth.currentUser) return;
+            const refLink = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`;
+            document.getElementById('refLinkOutput').value = refLink;
+
+            const snap = await db.collection('users').where('referredBy', '==', auth.currentUser.uid).get();
+            document.getElementById('stat-total-ref').textContent = snap.size;
+            
+            const tbody = document.getElementById('ref-table-body');
+            if (snap.empty) {
+                tbody.innerHTML = '<tr><td colspan="3" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>';
+            } else {
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-800";
+                    tr.innerHTML = `<td class="py-4 px-4">${data.email || 'Ẩn danh'}</td><td class="py-4 px-4 text-slate-400">${data.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString() : 'N/A'}</td><td class="py-4 px-4 text-green-400 font-bold">0.00 $</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        async function loadWithdrawData() {
+            if (!auth.currentUser) return;
+            const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
+            const balance = userDoc.data()?.balance || 0;
+            document.getElementById('withdraw-balance').textContent = balance.toFixed(2) + ' $';
+
+            const snap = await db.collection('withdrawals').where('userId', '==', auth.currentUser.uid).orderBy('createdAt', 'desc').get();
+            const tbody = document.getElementById('withdraw-table-body');
+            if (snap.empty) {
+                tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>';
+            } else {
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-800";
+                    const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
+                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400">${data.method}</td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        document.getElementById('withdrawSubmitBtn').onclick = async () => {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('withdrawMethod').value;
+            const account = document.getElementById('withdrawAccount').value;
+
+            if (!amount || amount < 2) return alert('Số tiền rút tối thiểu là 2.00 $');
+            if (!account) return alert('Vui lòng nhập thông tin tài khoản nhận tiền!');
+
+            const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
+            const balance = userDoc.data()?.balance || 0;
+
+            if (amount > balance) return alert('Số dư không đủ!');
+
+            if (confirm(`Xác nhận rút ${amount}$ về ${method}?`)) {
+                await db.collection('withdrawals').add({
+                    userId: auth.currentUser.uid,
+                    email: auth.currentUser.email,
+                    amount: amount,
+                    method: method,
+                    account: account,
+                    status: 'Đang xử lý',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await db.collection('users').doc(auth.currentUser.uid).update({
+                    balance: firebase.firestore.FieldValue.increment(-amount)
+                });
+                alert('Yêu cầu đã được gửi! Vui lòng chờ xử lý.');
+                loadWithdrawData();
+            }
+        };
+
+        window.copyRefLink = () => {
+            document.getElementById('refLinkOutput').select();
+            document.execCommand('copy');
+            alert('Đã copy link giới thiệu!');
+        };
 
         document.getElementById('copyBtn').onclick = () => {
             document.getElementById('shortUrlOutput').select();
