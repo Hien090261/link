@@ -670,8 +670,7 @@
                 }
 
                 showLoginBtn.classList.add('hidden');
-                document.getElementById('login-msg').classList.add('hidden');
-                document.getElementById('link-form').classList.remove('hidden');
+                
                 const logoutBtn = document.getElementById('logoutBtn');
                 logoutBtn.title = `Đăng xuất (${user.email})`;
                 
@@ -680,19 +679,16 @@
                 if (data) {
                     const bal = (data.balance || 0).toFixed(2) + ' $';
                     document.getElementById('stat-earnings').textContent = bal;
-                    document.getElementById('stat-clicks').textContent = data.totalClicks || 0;
-                    document.getElementById('stat-links').textContent = data.totalLinks || 0;
-                    document.getElementById('stat-withdrawn').textContent = (data.totalWithdrawn || 0).toFixed(2) + ' $';
                 }
             } else {
                 showLoginBtn.classList.remove('hidden');
                 adminBtnSide.style.display = 'none';
-                document.getElementById('login-msg').classList.remove('hidden');
-                document.getElementById('link-form').classList.add('hidden');
                 document.getElementById('logoutBtn').title = 'Chưa đăng nhập';
             }
         });
 
+        // Bỏ chức năng rút gọn link cũ vì đã chuyển sang Task Wall
+        /*
         document.getElementById('shortenBtn').onclick = async () => {
             const url = document.getElementById('targetUrlInput').value;
             if (!url) return alert('Dán link vào đã!');
@@ -707,6 +703,7 @@
             document.getElementById('shortUrlOutput').value = `${window.location.origin}${window.location.pathname}?id=${doc.id}`;
             document.getElementById('result').classList.remove('hidden');
         };
+        */
 
         const params = new URLSearchParams(window.location.search);
         const linkId = params.get('id');
@@ -1268,16 +1265,21 @@
         };
 
         window.copyRefLink = () => {
-            document.getElementById('refLinkOutput').select();
-            document.execCommand('copy');
-            alert('Đã copy link giới thiệu!');
+            const el = document.getElementById('refLinkOutput');
+            if (el) {
+                el.select();
+                document.execCommand('copy');
+                alert('Đã copy link giới thiệu!');
+            }
         };
 
+        /*
         document.getElementById('copyBtn').onclick = () => {
             document.getElementById('shortUrlOutput').select();
             document.execCommand('copy');
             alert('Đã copy!');
         };
+        */
     </script>
 </body>
 </html>
