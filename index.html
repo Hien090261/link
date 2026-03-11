@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Task Dashboard</title>
+<title>Link Task</title>
 
 <style>
 
@@ -10,7 +10,7 @@ font-family:Arial;
 background:#0f1c2e;
 color:white;
 text-align:center;
-padding-top:50px;
+padding-top:60px;
 }
 
 .box{
@@ -50,21 +50,27 @@ border-radius:6px;
 
 <body>
 
-<h1>Task Dashboard</h1>
+<!-- LOGIN SCREEN -->
 
-<div class="box">
+<div class="box" id="loginBox">
 
-<h3>Register / Login</h3>
+<h2>Login</h2>
 
 <input id="email" placeholder="Email"><br>
 <input id="password" type="password" placeholder="Password"><br>
 
-<button onclick="register()">Register</button>
 <button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
+
+</div>
+
+<!-- TASK SCREEN -->
+
+<div class="box" id="taskBox" style="display:none;">
+
+<h2>Task Dashboard</h2>
 
 <p id="user"></p>
-
-<h3>Tasks</h3>
 
 <div class="task">
 Upto 3 Steps
@@ -86,10 +92,7 @@ let upto3 = [
 
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
-"https://uptolink.one/PY6BEE",
-"https://uptolink.one/TLFtf",
-"https://uptolink.one/fqH5i",
-"https://uptolink.one/H7Wr"
+"https://uptolink.one/PY6BEE"
 
 ];
 
@@ -105,12 +108,7 @@ let upto2 = [
 
 "https://uptolink.one/1s2VD",
 "https://uptolink.one/E9Mi2Kb",
-"https://uptolink.one/2mPbEHb",
-"https://uptolink.one/6AUPMm",
-"https://uptolink.one/V52a",
-"https://uptolink.one/zuhnw",
-"https://uptolink.one/ki7bozt",
-"https://uptolink.one/m1q5aVu"
+"https://uptolink.one/2mPbEHb"
 
 ];
 
@@ -161,7 +159,7 @@ let email=document.getElementById("email").value;
 let password=document.getElementById("password").value;
 
 signInWithEmailAndPassword(auth,email,password)
-.then(()=>alert("Login success"))
+.then(()=>{})
 .catch(e=>alert(e.message));
 
 }
@@ -169,6 +167,9 @@ signInWithEmailAndPassword(auth,email,password)
 onAuthStateChanged(auth,(user)=>{
 
 if(user){
+
+document.getElementById("loginBox").style.display="none";
+document.getElementById("taskBox").style.display="block";
 
 document.getElementById("user").innerText="Logged in: "+user.email;
 
