@@ -497,6 +497,9 @@
                  </div>
 
                  <div id="admin-users-view" class="hidden">
+                     <div class="mb-4">
+                        <input type="text" id="adminUserSearch" onkeyup="filterAdminUsers()" placeholder="Tìm theo Email hoặc UID..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-xs text-white outline-none focus:border-blue-500">
+                     </div>
                      <div class="overflow-x-auto">
                          <table class="w-full text-left">
                              <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
@@ -829,11 +832,12 @@
                      tr.innerHTML = `
                          <td class="py-4 px-4">
                             <div class="text-xs font-bold text-white flex items-center gap-2">
-                                ${data.email || 'N/A'} 
+                                ${data.email || '<span class="text-orange-400 italic">Chờ đồng bộ email...</span>'} 
                                 ${data.email === ADMIN_EMAIL ? '<span class="text-[8px] bg-blue-500/20 text-blue-400 px-1 rounded">ADMIN</span>' : ''}
                                 <span class="text-[10px] font-bold ${isBanned ? 'text-red-500' : 'text-green-500'}">● ${isBanned ? 'Banned' : 'Active'}</span>
                             </div>
                             <div class="text-[9px] text-slate-500 font-mono mt-1">UID: ${doc.id}</div>
+                            ${!data.email ? '<div class="text-[8px] text-slate-600">(User cần đăng nhập lại để hiện email)</div>' : ''}
                          </td>
                          <td class="py-4 px-4">
                             <div class="font-black text-green-400">${(data.balance || 0).toFixed(2)} $</div>
@@ -875,6 +879,22 @@
                  await db.collection('users').doc(id).update({ balance: parseFloat(newBal) });
                  alert("Đã cập nhật số dư!");
                  loadAdminUsers();
+             }
+         };
+
+         window.filterAdminUsers = () => {
+             const input = document.getElementById('adminUserSearch');
+             const filter = input.value.toUpperCase();
+             const tbody = document.getElementById('admin-users-table-body');
+             const tr = tbody.getElementsByTagName('tr');
+
+             for (let i = 0; i < tr.length; i++) {
+                 const text = tr[i].textContent || tr[i].innerText;
+                 if (text.toUpperCase().indexOf(filter) > -1) {
+                     tr[i].style.display = "";
+                 } else {
+                     tr[i].style.display = "none";
+                 }
              }
          };
 
