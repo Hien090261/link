@@ -1,10 +1,6 @@
-
-
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <title>Link Task</title>
 
 <style>
@@ -20,9 +16,10 @@ padding-top:60px;
 .box{
 background:#1e2b44;
 padding:30px;
-width:400px;
+width:420px;
 margin:auto;
 border-radius:10px;
+margin-bottom:20px;
 }
 
 button{
@@ -50,17 +47,16 @@ border-radius:6px;
 
 table{
 width:100%;
-margin-top:20px;
+margin-top:15px;
 border-collapse:collapse;
 }
 
 td,th{
 border:1px solid #444;
-padding:8px;
+padding:6px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -93,9 +89,7 @@ padding:8px;
 
 <div class="task">
 
-Upto 3 Steps
-
-<br>
+Upto 3 Steps<br>
 
 <button onclick="earn3()">Earn</button>
 
@@ -103,9 +97,7 @@ Upto 3 Steps
 
 <div class="task">
 
-Upto 2 Steps
-
-<br>
+Upto 2 Steps<br>
 
 <button onclick="earn2()">Earn</button>
 
@@ -117,7 +109,7 @@ Upto 2 Steps
 
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 
 <div class="box" id="adminBox" style="display:none">
 
@@ -125,14 +117,10 @@ Upto 2 Steps
 
 <table>
 
-<thead>
-
 <tr>
 <th>Email</th>
 <th>Earn</th>
 </tr>
-
-</thead>
 
 <tbody id="userTable"></tbody>
 
@@ -142,33 +130,35 @@ Upto 2 Steps
 
 <script>
 
-let canVerify=false
+let verifyTime=0
 
 let upto3=[
-
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
-"https://uptolink.one/PY6BEE",
-"https://uptolink.one/TLFtf",
-"https://uptolink.one/fqH5i"
-
+"https://uptolink.one/PY6BEE"
 ]
 
 let upto2=[
-
 "https://uptolink.one/1s2VD",
 "https://uptolink.one/E9Mi2Kb",
-"https://uptolink.one/2mPbEHb",
-"https://uptolink.one/6AUPMm",
-"https://uptolink.one/V52a"
-
+"https://uptolink.one/2mPbEHb"
 ]
+
+function startVerify(){
+
+verifyTime=Date.now()+50000
+
+localStorage.setItem("verifyTime",verifyTime)
+
+alert("Complete task then return")
+
+}
 
 function earn3(){
 
-let random=Math.floor(Math.random()*upto3.length)
+let r=Math.floor(Math.random()*upto3.length)
 
-window.open(upto3[random])
+window.open(upto3[r])
 
 startVerify()
 
@@ -176,25 +166,11 @@ startVerify()
 
 function earn2(){
 
-let random=Math.floor(Math.random()*upto2.length)
+let r=Math.floor(Math.random()*upto2.length)
 
-window.open(upto2[random])
+window.open(upto2[r])
 
 startVerify()
-
-}
-
-function startVerify(){
-
-canVerify=false
-
-alert("Complete the task then return to verify")
-
-setTimeout(()=>{
-
-canVerify=true
-
-},50000)
 
 }
 
@@ -222,37 +198,33 @@ collection,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
-const firebaseConfig = {
-
+const firebaseConfig={
 apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
 authDomain:"link-task-32a86.firebaseapp.com",
 projectId:"link-task-32a86",
 storageBucket:"link-task-32a86.firebasestorage.app",
 messagingSenderId:"859078395434",
 appId:"1:859078395434:web:4692a5d5e09d7ab4716553"
-
 }
 
 const app=initializeApp(firebaseConfig)
 const auth=getAuth(app)
 const db=getFirestore(app)
 
-let userId=null
+let uid=null
 
-const ADMIN_EMAIL="nguyenthanhhien1333@gmail.com"
+const ADMIN="nguyenthanhhien1333@gmail.com"
 
 window.register=async function(){
 
 let email=document.getElementById("email").value
-let password=document.getElementById("password").value
+let pass=document.getElementById("password").value
 
-let user=await createUserWithEmailAndPassword(auth,email,password)
+let user=await createUserWithEmailAndPassword(auth,email,pass)
 
 await setDoc(doc(db,"users",user.user.uid),{
-
 email:email,
 earn:0
-
 })
 
 alert("Register success")
@@ -262,9 +234,9 @@ alert("Register success")
 window.login=function(){
 
 let email=document.getElementById("email").value
-let password=document.getElementById("password").value
+let pass=document.getElementById("password").value
 
-signInWithEmailAndPassword(auth,email,password)
+signInWithEmailAndPassword(auth,email,pass)
 .catch(e=>alert(e.message))
 
 }
@@ -277,7 +249,9 @@ signOut(auth)
 
 window.verifyTask=async function(){
 
-if(!canVerify){
+let saved=localStorage.getItem("verifyTime")
+
+if(!saved || Date.now()<saved){
 
 alert("Task not completed")
 
@@ -285,21 +259,19 @@ return
 
 }
 
-let ref=doc(db,"users",userId)
+let ref=doc(db,"users",uid)
 
 let snap=await getDoc(ref)
 
-let data=snap.data()
+let earn=snap.data().earn+1
 
-let newEarn=data.earn+1
+await updateDoc(ref,{earn:earn})
 
-await updateDoc(ref,{earn:newEarn})
+document.getElementById("count").innerText=earn
 
-document.getElementById("count").innerText=newEarn
+localStorage.removeItem("verifyTime")
 
-alert("Task completed")
-
-canVerify=false
+alert("Task verified")
 
 }
 
@@ -311,13 +283,14 @@ table.innerHTML=""
 
 let query=await getDocs(collection(db,"users"))
 
-query.forEach((docu)=>{
+query.forEach(d=>{
 
-let d=docu.data()
+let data=d.data()
 
-let row="<tr><td>"+d.email+"</td><td>"+d.earn+"</td></tr>"
-
-table.innerHTML+=row
+table.innerHTML+=`<tr>
+<td>${data.email}</td>
+<td>${data.earn}</td>
+</tr>`
 
 })
 
@@ -327,22 +300,20 @@ onAuthStateChanged(auth,async(user)=>{
 
 if(user){
 
-userId=user.uid
+uid=user.uid
 
 document.getElementById("loginBox").style.display="none"
 document.getElementById("taskBox").style.display="block"
 
 document.getElementById("user").innerText="Logged in: "+user.email
 
-let snap=await getDoc(doc(db,"users",user.uid))
+let snap=await getDoc(doc(db,"users",uid))
 
 if(snap.exists()){
-
 document.getElementById("count").innerText=snap.data().earn
-
 }
 
-if(user.email===ADMIN_EMAIL){
+if(user.email.toLowerCase()===ADMIN.toLowerCase()){
 
 document.getElementById("adminBox").style.display="block"
 
@@ -363,5 +334,4 @@ document.getElementById("adminBox").style.display="none"
 </script>
 
 </body>
-
 </html>
