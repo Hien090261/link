@@ -1,22 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Đang chuyển hướng</title>
+<title>Dashboard nhiệm vụ</title>
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+.box{
+background:#1e293b;
+padding:20px;
+margin:20px;
+border-radius:10px;
+width:300px;
+display:inline-block;
+}
+
+button{
+background:#6366f1;
+border:none;
+padding:10px 20px;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+</style>
 </head>
 
-<body style="text-align:center;font-family:sans-serif">
+<body>
 
-<h2>Đang lấy link...</h2>
-<p>Vui lòng chờ 5 giây</p>
+<h1>Task Dashboard</h1>
+
+<div class="box">
+<h3>Link nhiệm vụ</h3>
+<p>Earn 10 points</p>
+<button onclick="earn()">Earn</button>
+</div>
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
-const url = params.get("url");
-
-setTimeout(function(){
-window.location.href = url;
-},5000);
+function earn(){
+alert("Hoàn thành nhiệm vụ!");
+}
 
 </script>
 
