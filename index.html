@@ -580,9 +580,16 @@
                         balance: 0, 
                         totalClicks: 0, 
                         totalLinks: 0,
+                        referredCount: 0,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
-                    if (refId) userData.referredBy = refId;
+                    if (refId) {
+                        userData.referredBy = refId;
+                        // Tăng số lượng người giới thiệu cho người giới thiệu
+                        await db.collection('users').doc(refId).update({
+                            referredCount: firebase.firestore.FieldValue.increment(1)
+                        });
+                    }
                     await db.collection('users').doc(cred.user.uid).set(userData);
                 }
                 toggleAuthModal(false);
@@ -802,28 +809,45 @@
             const tbody = document.getElementById('contest-table-body');
             tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Đang tải bảng xếp hạng...</td></tr>';
             
-            // Mock data cho Contest
-            const mockContest = [
-                { email: 'admin@linkpro.com', refs: 150, reward: '50$' },
-                { email: 'user77@gmail.com', refs: 89, reward: '25$' },
-                { email: 'kiemtien24h@vn.com', refs: 45, reward: '10$' },
-                { email: 'mmo_master@yahoo.com', refs: 32, reward: '5$' },
-                { email: 'tester123@outlook.com', refs: 12, reward: '2$' }
-            ];
+            try {
+                // Lấy 5 người dùng có referredCount cao nhất từ Firestore
+                const snap = await db.collection('users')
+                    .orderBy('referredCount', 'desc')
+                    .limit(5)
+                    .get();
 
-            tbody.innerHTML = '';
-            mockContest.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
-                const medalColor = index === 0 ? 'text-yellow-500' : (index === 1 ? 'text-slate-300' : (index === 2 ? 'text-orange-500' : 'text-slate-500'));
-                tr.innerHTML = `
-                    <td class="py-6 px-4 text-center font-black ${medalColor}">${index + 1}</td>
-                    <td class="py-6 px-4 font-bold text-white">${item.email.split('@')[0]}***@${item.email.split('@')[1]}</td>
-                    <td class="py-6 px-4 text-blue-400 font-black">${item.refs}</td>
-                    <td class="py-6 px-4 text-green-400 font-black">${item.reward}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có ai tham gia đua top. Hãy là người đầu tiên!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                let index = 0;
+                const rewards = ['50$', '25$', '10$', '5$', '2$'];
+
+                snap.forEach(doc => {
+                    const item = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                    const medalColor = index === 0 ? 'text-yellow-500' : (index === 1 ? 'text-slate-300' : (index === 2 ? 'text-orange-500' : 'text-slate-500'));
+                    
+                    // Ẩn bớt email để bảo mật
+                    const emailParts = (item.email || 'user@link.pro').split('@');
+                    const hiddenEmail = emailParts[0].substring(0, 3) + '***@' + emailParts[1];
+
+                    tr.innerHTML = `
+                        <td class="py-6 px-4 text-center font-black ${medalColor}">${index + 1}</td>
+                        <td class="py-6 px-4 font-bold text-white">${hiddenEmail}</td>
+                        <td class="py-6 px-4 text-blue-400 font-black">${item.referredCount || 0}</td>
+                        <td class="py-6 px-4 text-green-400 font-black">${rewards[index] || '0$'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                    index++;
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải bảng xếp hạng:", error);
+                tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-red-500">Không thể tải dữ liệu. Hãy thử lại sau!</td></tr>';
+            }
         }
 
         async function loadAffiliateData() {
