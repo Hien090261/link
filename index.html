@@ -1,23 +1,18 @@
-<!DOCTYPE html>
-
-<html>
+<!DOCTYPE html><html>
 <head>
-
-<title>Link Task Pro</title>
-
-<style>
-
+<meta charset="UTF-8">
+<title>Link Task Pro</title><style>
 body{
 font-family:Arial;
 background:#0f1c2e;
 color:white;
 text-align:center;
-padding-top:60px;
+padding-top:50px;
 }
 
 .box{
 background:#1e2b44;
-padding:30px;
+padding:25px;
 width:420px;
 margin:auto;
 border-radius:10px;
@@ -49,7 +44,7 @@ border-radius:6px;
 
 table{
 width:100%;
-margin-top:15px;
+margin-top:10px;
 border-collapse:collapse;
 }
 
@@ -57,117 +52,80 @@ td,th{
 border:1px solid #444;
 padding:6px;
 }
+</style></head><body><!-- LOGIN --><div class="box" id="loginBox"><h2>Login</h2><input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
 
-</style>
+<button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
 
-</head>
+</div><!-- DASHBOARD --><div class="box" id="taskBox" style="display:none"><h2>Task Dashboard</h2><p id="user"></p><p>Earn: <span id="count">0</span></p><button onclick="logout()">Logout</button>
 
-<body>
+<div class="task">Upto 3 Steps
 
-<!-- LOGIN -->
+<br><button onclick="earn3()">Earn</button>
 
-<div class="box" id="loginBox">
+</div><div class="task">Upto 2 Steps
 
-<h2>Login</h2>
+<br><button onclick="earn2()">Earn</button>
 
-<input id="email" placeholder="Email"><br> <input id="password" type="password" placeholder="Password"><br>
+</div><br><button onclick="verify()">Verify Task</button>
 
-<button onclick="login()">Login</button> <button onclick="register()">Register</button>
+</div><!-- ADMIN --><div class="box" id="adminBox" style="display:none"><h2>Admin Panel</h2><h3>Add Upto3 Link</h3><input id="link3"><button onclick="addLink3()">Add</button>
 
-</div>
+<h3>Add Upto2 Link</h3><input id="link2"><button onclick="addLink2()">Add</button>
 
-<!-- DASHBOARD -->
-
-<div class="box" id="taskBox" style="display:none">
-
-<h2>Task Dashboard</h2>
-
-<p id="user"></p>
-
-<p>Earn: <span id="count">0</span></p>
-
-<button onclick="logout()">Logout</button>
-
-<div class="task">
-
-Task Link
-
-<br>
-
-<button onclick="earn()">Earn</button>
-
-</div>
-
-<br>
-
-<button onclick="verify()">Verify Task</button>
-
-</div>
-
-<!-- ADMIN -->
-
-<div class="box" id="adminBox" style="display:none">
-
-<h2>Admin Panel</h2>
-
-<h3>Add Link</h3>
-
-<input id="newLink" placeholder="paste shortlink">
-
-<button onclick="addLink()">Add</button>
-
-<h3>User Stats</h3>
-
-<table>
-
-<tr>
+<h3>User Stats</h3><table><tr>
 <th>Email</th>
 <th>Earn</th>
 <th>Reset</th>
-</tr>
-
-<tbody id="userTable"></tbody>
-
-</table>
-
-</div>
-
-<script>
+</tr><tbody id="userTable"></tbody></table></div><script>
 
 let verifyTime=0
-let links=[]
 
-function randomTime(){
+let upto3=[]
+let upto2=[]
+
+function randomVerify(){
 
 return Math.floor(Math.random()*30000)+40000
 
 }
 
-function earn(){
+function earn3(){
 
-if(links.length===0){
-
-alert("No links available")
-
+if(upto3.length==0){
+alert("No link")
 return
-
 }
 
-let r=Math.floor(Math.random()*links.length)
+let r=Math.floor(Math.random()*upto3.length)
 
-window.open(links[r])
+window.open(upto3[r])
 
-verifyTime=Date.now()+randomTime()
+verifyTime=Date.now()+randomVerify()
 
 localStorage.setItem("verify",verifyTime)
 
-alert("Complete task then return")
+}
+
+function earn2(){
+
+if(upto2.length==0){
+alert("No link")
+return
+}
+
+let r=Math.floor(Math.random()*upto2.length)
+
+window.open(upto2[r])
+
+verifyTime=Date.now()+randomVerify()
+
+localStorage.setItem("verify",verifyTime)
 
 }
 
-</script>
-
-<script type="module">
+</script><script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
 
@@ -211,8 +169,8 @@ const ADMIN="nguyenthanhhien1333@gmail.com"
 
 window.register=async function(){
 
-let email=document.getElementById("email").value
-let pass=document.getElementById("password").value
+let email=email.value
+let pass=password.value
 
 let user=await createUserWithEmailAndPassword(auth,email,pass)
 
@@ -221,33 +179,25 @@ email:email,
 earn:0
 })
 
-alert("Register success")
-
 }
 
 window.login=function(){
 
-let email=document.getElementById("email").value
-let pass=document.getElementById("password").value
-
-signInWithEmailAndPassword(auth,email,pass)
-.catch(e=>alert(e.message))
+signInWithEmailAndPassword(auth,email.value,password.value)
 
 }
 
 window.logout=function(){
-
 signOut(auth)
-
 }
 
 window.verify=async function(){
 
 let saved=localStorage.getItem("verify")
 
-if(!saved || Date.now()<saved){
+if(!saved||Date.now()<saved){
 
-alert("Task not completed")
+alert("Task not finished")
 
 return
 
@@ -261,37 +211,48 @@ let earn=snap.data().earn+1
 
 await updateDoc(ref,{earn:earn})
 
-document.getElementById("count").innerText=earn
+count.innerText=earn
 
 localStorage.removeItem("verify")
 
-alert("Task verified")
+alert("Verified")
 
 }
 
 async function loadLinks(){
 
-links=[]
+upto3=[]
+upto2=[]
 
-let q=await getDocs(collection(db,"links"))
+let q1=await getDocs(collection(db,"upto3"))
 
-q.forEach(d=>{
+q1.forEach(d=>{
+upto3.push(d.data().url)
+})
 
-links.push(d.data().url)
+let q2=await getDocs(collection(db,"upto2"))
 
+q2.forEach(d=>{
+upto2.push(d.data().url)
 })
 
 }
 
-async function addLink(){
+window.addLink3=async function(){
 
-let url=document.getElementById("newLink").value
-
-await addDoc(collection(db,"links"),{
-url:url
+await addDoc(collection(db,"upto3"),{
+url:link3.value
 })
 
-alert("Link added")
+loadLinks()
+
+}
+
+window.addLink2=async function(){
+
+await addDoc(collection(db,"upto2"),{
+url:link2.value
+})
 
 loadLinks()
 
@@ -299,9 +260,7 @@ loadLinks()
 
 async function loadUsers(){
 
-let table=document.getElementById("userTable")
-
-table.innerHTML=""
+userTable.innerHTML=""
 
 let q=await getDocs(collection(db,"users"))
 
@@ -309,7 +268,7 @@ q.forEach(d=>{
 
 let data=d.data()
 
-table.innerHTML+=`
+userTable.innerHTML+=`
 
 <tr>
 
@@ -317,7 +276,7 @@ table.innerHTML+=`
 
 <td>${data.earn}</td>
 
-<td><button onclick="resetEarn('${d.id}')">Reset</button></td>
+<td><button onclick="reset('${d.id}')">Reset</button></td>
 
 </tr>
 
@@ -327,7 +286,7 @@ table.innerHTML+=`
 
 }
 
-window.resetEarn=async function(id){
+window.reset=async function(id){
 
 await updateDoc(doc(db,"users",id),{earn:0})
 
@@ -341,22 +300,22 @@ if(user){
 
 uid=user.uid
 
-document.getElementById("loginBox").style.display="none"
-document.getElementById("taskBox").style.display="block"
+loginBox.style.display="none"
+taskBox.style.display="block"
 
 document.getElementById("user").innerText="Logged in: "+user.email
 
 let snap=await getDoc(doc(db,"users",uid))
 
 if(snap.exists()){
-document.getElementById("count").innerText=snap.data().earn
+count.innerText=snap.data().earn
 }
 
 loadLinks()
 
 if(user.email===ADMIN){
 
-document.getElementById("adminBox").style.display="block"
+adminBox.style.display="block"
 
 loadUsers()
 
@@ -364,15 +323,13 @@ loadUsers()
 
 }else{
 
-document.getElementById("loginBox").style.display="block"
-document.getElementById("taskBox").style.display="none"
-document.getElementById("adminBox").style.display="none"
+loginBox.style.display="block"
+taskBox.style.display="none"
+adminBox.style.display="none"
 
 }
 
 })
 
-</script>
-
-</body>
+</script></body>
 </html>
