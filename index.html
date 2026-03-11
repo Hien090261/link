@@ -49,6 +49,21 @@ window.open("https://google.com");
 }
 
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
+  authDomain: "link-task-32a86.firebaseapp.com",
+  projectId: "link-task-32a86",
+  storageBucket: "link-task-32a86.firebasestorage.app",
+  messagingSenderId: "859078395434",
+  appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+</script>
 </body>
 </html>
