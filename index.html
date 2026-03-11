@@ -1,335 +1,73 @@
-<!DOCTYPE html><html>
-<head>
-<meta charset="UTF-8">
-<title>Link Task Pro</title><style>
-body{
-font-family:Arial;
-background:#0f1c2e;
-color:white;
-text-align:center;
-padding-top:50px;
-}
-
-.box{
-background:#1e2b44;
-padding:25px;
-width:420px;
-margin:auto;
-border-radius:10px;
-margin-bottom:20px;
-}
-
-button{
-padding:10px 20px;
-margin-top:10px;
-border:none;
-background:#6c7cff;
-color:white;
-border-radius:5px;
-cursor:pointer;
-}
-
-input{
-padding:10px;
-width:90%;
-margin-top:10px;
-}
-
-.task{
-margin-top:15px;
-background:#2c3a57;
-padding:10px;
-border-radius:6px;
-}
-
-table{
-width:100%;
-margin-top:10px;
-border-collapse:collapse;
-}
-
-td,th{
-border:1px solid #444;
-padding:6px;
-}
-</style></head><body><!-- LOGIN --><div class="box" id="loginBox"><h2>Login</h2><input id="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
-
-<button onclick="login()">Login</button>
-<button onclick="register()">Register</button>
-
-</div><!-- DASHBOARD --><div class="box" id="taskBox" style="display:none"><h2>Task Dashboard</h2><p id="user"></p><p>Earn: <span id="count">0</span></p><button onclick="logout()">Logout</button>
-
-<div class="task">Upto 3 Steps
-
-<br><button onclick="earn3()">Earn</button>
-
-</div><div class="task">Upto 2 Steps
-
-<br><button onclick="earn2()">Earn</button>
-
-</div><br><button onclick="verify()">Verify Task</button>
-
-</div><!-- ADMIN --><div class="box" id="adminBox" style="display:none"><h2>Admin Panel</h2><h3>Add Upto3 Link</h3><input id="link3"><button onclick="addLink3()">Add</button>
-
-<h3>Add Upto2 Link</h3><input id="link2"><button onclick="addLink2()">Add</button>
-
-<h3>User Stats</h3><table><tr>
-<th>Email</th>
-<th>Earn</th>
-<th>Reset</th>
-</tr><tbody id="userTable"></tbody></table></div><script>
-
-let verifyTime=0
-
-let upto3=[]
-let upto2=[]
-
-function randomVerify(){
-
-return Math.floor(Math.random()*30000)+40000
-
-}
-
-function earn3(){
-
-if(upto3.length==0){
-alert("No link")
-return
-}
-
-let r=Math.floor(Math.random()*upto3.length)
-
-window.open(upto3[r])
-
-verifyTime=Date.now()+randomVerify()
-
-localStorage.setItem("verify",verifyTime)
-
-}
-
-function earn2(){
-
-if(upto2.length==0){
-alert("No link")
-return
-}
-
-let r=Math.floor(Math.random()*upto2.length)
-
-window.open(upto2[r])
-
-verifyTime=Date.now()+randomVerify()
-
-localStorage.setItem("verify",verifyTime)
-
-}
-
-</script><script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-
-import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-
-import {
-getFirestore,
-doc,
-setDoc,
-getDoc,
-updateDoc,
-collection,
-getDocs,
-addDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-
-const firebaseConfig={
-
-apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
-authDomain:"link-task-32a86.firebaseapp.com",
-projectId:"link-task-32a86",
-storageBucket:"link-task-32a86.firebasestorage.app",
-messagingSenderId:"859078395434",
-appId:"1:859078395434:web:4692a5d5e09d7ab4716553"
-
-}
-
-const app=initializeApp(firebaseConfig)
-const auth=getAuth(app)
-const db=getFirestore(app)
-
-let uid=null
-
-const ADMIN="nguyenthanhhien1333@gmail.com"
-
-window.register=async function(){
-
-let email=email.value
-let pass=password.value
-
-let user=await createUserWithEmailAndPassword(auth,email,pass)
-
-await setDoc(doc(db,"users",user.user.uid),{
-email:email,
-earn:0
-})
-
-}
-
-window.login=function(){
-
-signInWithEmailAndPassword(auth,email.value,password.value)
-
-}
-
-window.logout=function(){
-signOut(auth)
-}
-
-window.verify=async function(){
-
-let saved=localStorage.getItem("verify")
-
-if(!saved||Date.now()<saved){
-
-alert("Task not finished")
-
-return
-
-}
-
-let ref=doc(db,"users",uid)
-
-let snap=await getDoc(ref)
-
-let earn=snap.data().earn+1
-
-await updateDoc(ref,{earn:earn})
-
-count.innerText=earn
-
-localStorage.removeItem("verify")
-
-alert("Verified")
-
-}
-
-async function loadLinks(){
-
-upto3=[]
-upto2=[]
-
-let q1=await getDocs(collection(db,"upto3"))
-
-q1.forEach(d=>{
-upto3.push(d.data().url)
-})
-
-let q2=await getDocs(collection(db,"upto2"))
-
-q2.forEach(d=>{
-upto2.push(d.data().url)
-})
-
-}
-
-window.addLink3=async function(){
-
-await addDoc(collection(db,"upto3"),{
-url:link3.value
-})
-
-loadLinks()
-
-}
-
-window.addLink2=async function(){
-
-await addDoc(collection(db,"upto2"),{
-url:link2.value
-})
-
-loadLinks()
-
-}
-
-async function loadUsers(){
-
-userTable.innerHTML=""
-
-let q=await getDocs(collection(db,"users"))
-
-q.forEach(d=>{
-
-let data=d.data()
-
-userTable.innerHTML+=`
-
-<tr>
-
-<td>${data.email}</td>
-
-<td>${data.earn}</td>
-
-<td><button onclick="reset('${d.id}')">Reset</button></td>
-
-</tr>
-
-`
-
-})
-
-}
-
-window.reset=async function(id){
-
-await updateDoc(doc(db,"users",id),{earn:0})
-
-loadUsers()
-
-}
-
-onAuthStateChanged(auth,async(user)=>{
-
-if(user){
-
-uid=user.uid
-
-loginBox.style.display="none"
-taskBox.style.display="block"
-
-document.getElementById("user").innerText="Logged in: "+user.email
-
-let snap=await getDoc(doc(db,"users",uid))
-
-if(snap.exists()){
-count.innerText=snap.data().earn
-}
-
-loadLinks()
-
-if(user.email===ADMIN){
-
-adminBox.style.display="block"
-
-loadUsers()
-
-}
-
-}else{
-
-loginBox.style.display="block"
-taskBox.style.display="none"
-adminBox.style.display="none"
-
-}
-
-})
-
-</script></body>
-</html>
+const express = require('express');
+const cors = require('cors');
+const { nanoid } = require('nanoid');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DB_FILE = path.join(__dirname, 'links.json');
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+// Load/Init Database
+const loadLinks = () => {
+    if (!fs.existsSync(DB_FILE)) {
+        fs.writeFileSync(DB_FILE, JSON.stringify({}));
+        return {};
+    }
+    const data = fs.readFileSync(DB_FILE);
+    return JSON.parse(data);
+};
+
+const saveLink = (id, targetUrl) => {
+    const links = loadLinks();
+    links[id] = targetUrl;
+    fs.writeFileSync(DB_FILE, JSON.stringify(links, null, 2));
+};
+
+// Routes
+// 1. API Rút gọn link
+app.post('/api/shorten', (req, res) => {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
+
+    // Simple URL validation
+    try {
+        new URL(url);
+    } catch (e) {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+
+    const id = nanoid(6); // Generate 6-char ID
+    saveLink(id, url);
+
+    res.json({ id, shortUrl: `${req.protocol}://${req.get('host')}/${id}` });
+});
+
+// 2. API Lấy link đích từ ID
+app.get('/api/target/:id', (req, res) => {
+    const { id } = req.params;
+    const links = loadLinks();
+    const target = links[id];
+
+    if (!target) return res.status(404).json({ error: 'Link not found' });
+    res.json({ target });
+});
+
+// 3. Route vượt link (trả về trang redirect.html)
+app.get('/:id', (req, res) => {
+    const { id } = req.params;
+    const links = loadLinks();
+    if (!links[id]) return res.status(404).send('Link not found');
+
+    // Phục vụ file redirect.html từ thư mục public
+    res.sendFile(path.join(__dirname, 'public', 'redirect.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+});
