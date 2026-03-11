@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-<title>Link Task</title>
+
+<title>Link Task Pro</title>
 
 <style>
 
@@ -57,6 +59,7 @@ padding:6px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -67,11 +70,9 @@ padding:6px;
 
 <h2>Login</h2>
 
-<input id="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
+<input id="email" placeholder="Email"><br> <input id="password" type="password" placeholder="Password"><br>
 
-<button onclick="login()">Login</button>
-<button onclick="register()">Register</button>
+<button onclick="login()">Login</button> <button onclick="register()">Register</button>
 
 </div>
 
@@ -83,29 +84,23 @@ padding:6px;
 
 <p id="user"></p>
 
-<p>Earn count: <span id="count">0</span></p>
+<p>Earn: <span id="count">0</span></p>
 
 <button onclick="logout()">Logout</button>
 
 <div class="task">
 
-Upto 3 Steps<br>
+Task Link
 
-<button onclick="earn3()">Earn</button>
+<br>
 
-</div>
-
-<div class="task">
-
-Upto 2 Steps<br>
-
-<button onclick="earn2()">Earn</button>
+<button onclick="earn()">Earn</button>
 
 </div>
 
 <br>
 
-<button onclick="verifyTask()">Verify Task</button>
+<button onclick="verify()">Verify Task</button>
 
 </div>
 
@@ -115,11 +110,20 @@ Upto 2 Steps<br>
 
 <h2>Admin Panel</h2>
 
+<h3>Add Link</h3>
+
+<input id="newLink" placeholder="paste shortlink">
+
+<button onclick="addLink()">Add</button>
+
+<h3>User Stats</h3>
+
 <table>
 
 <tr>
 <th>Email</th>
 <th>Earn</th>
+<th>Reset</th>
 </tr>
 
 <tbody id="userTable"></tbody>
@@ -131,46 +135,33 @@ Upto 2 Steps<br>
 <script>
 
 let verifyTime=0
+let links=[]
 
-let upto3=[
-"https://uptolink.one/O6E4CDUB",
-"https://uptolink.one/KFsVT",
-"https://uptolink.one/PY6BEE"
-]
+function randomTime(){
 
-let upto2=[
-"https://uptolink.one/1s2VD",
-"https://uptolink.one/E9Mi2Kb",
-"https://uptolink.one/2mPbEHb"
-]
+return Math.floor(Math.random()*30000)+40000
 
-function startVerify(){
+}
 
-verifyTime=Date.now()+50000
+function earn(){
 
-localStorage.setItem("verifyTime",verifyTime)
+if(links.length===0){
+
+alert("No links available")
+
+return
+
+}
+
+let r=Math.floor(Math.random()*links.length)
+
+window.open(links[r])
+
+verifyTime=Date.now()+randomTime()
+
+localStorage.setItem("verify",verifyTime)
 
 alert("Complete task then return")
-
-}
-
-function earn3(){
-
-let r=Math.floor(Math.random()*upto3.length)
-
-window.open(upto3[r])
-
-startVerify()
-
-}
-
-function earn2(){
-
-let r=Math.floor(Math.random()*upto2.length)
-
-window.open(upto2[r])
-
-startVerify()
 
 }
 
@@ -195,16 +186,19 @@ setDoc,
 getDoc,
 updateDoc,
 collection,
-getDocs
+getDocs,
+addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 const firebaseConfig={
+
 apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
 authDomain:"link-task-32a86.firebaseapp.com",
 projectId:"link-task-32a86",
 storageBucket:"link-task-32a86.firebasestorage.app",
 messagingSenderId:"859078395434",
 appId:"1:859078395434:web:4692a5d5e09d7ab4716553"
+
 }
 
 const app=initializeApp(firebaseConfig)
@@ -247,9 +241,9 @@ signOut(auth)
 
 }
 
-window.verifyTask=async function(){
+window.verify=async function(){
 
-let saved=localStorage.getItem("verifyTime")
+let saved=localStorage.getItem("verify")
 
 if(!saved || Date.now()<saved){
 
@@ -269,9 +263,37 @@ await updateDoc(ref,{earn:earn})
 
 document.getElementById("count").innerText=earn
 
-localStorage.removeItem("verifyTime")
+localStorage.removeItem("verify")
 
 alert("Task verified")
+
+}
+
+async function loadLinks(){
+
+links=[]
+
+let q=await getDocs(collection(db,"links"))
+
+q.forEach(d=>{
+
+links.push(d.data().url)
+
+})
+
+}
+
+async function addLink(){
+
+let url=document.getElementById("newLink").value
+
+await addDoc(collection(db,"links"),{
+url:url
+})
+
+alert("Link added")
+
+loadLinks()
 
 }
 
@@ -281,18 +303,35 @@ let table=document.getElementById("userTable")
 
 table.innerHTML=""
 
-let query=await getDocs(collection(db,"users"))
+let q=await getDocs(collection(db,"users"))
 
-query.forEach(d=>{
+q.forEach(d=>{
 
 let data=d.data()
 
-table.innerHTML+=`<tr>
+table.innerHTML+=`
+
+<tr>
+
 <td>${data.email}</td>
+
 <td>${data.earn}</td>
-</tr>`
+
+<td><button onclick="resetEarn('${d.id}')">Reset</button></td>
+
+</tr>
+
+`
 
 })
+
+}
+
+window.resetEarn=async function(id){
+
+await updateDoc(doc(db,"users",id),{earn:0})
+
+loadUsers()
 
 }
 
@@ -313,7 +352,9 @@ if(snap.exists()){
 document.getElementById("count").innerText=snap.data().earn
 }
 
-if(user.email.toLowerCase()===ADMIN.toLowerCase()){
+loadLinks()
+
+if(user.email===ADMIN){
 
 document.getElementById("adminBox").style.display="block"
 
