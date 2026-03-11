@@ -1,35 +1,54 @@
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard nhiệm vụ</title>
+<style>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
-  authDomain: "link-task-32a86.firebaseapp.com",
-  projectId: "link-task-32a86",
-  storageBucket: "link-task-32a86.firebasestorage.app",
-  messagingSenderId: "859078395434",
-  appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-window.register = function(){
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-
-  createUserWithEmailAndPassword(auth,email,pass)
-  .then(()=>alert("Đăng ký thành công"))
-  .catch(e=>alert(e.message));
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
 }
 
-window.login = function(){
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth,email,pass)
-  .then(()=>alert("Đăng nhập thành công"))
-  .catch(e=>alert(e.message));
+.box{
+background:#1e293b;
+padding:20px;
+margin:20px;
+border-radius:10px;
+width:300px;
+display:inline-block;
 }
+
+button{
+background:#6366f1;
+border:none;
+padding:10px 20px;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Task Dashboard</h1>
+
+<div class="box">
+<h3>Link nhiệm vụ</h3>
+<p>Earn 10 points</p>
+<button onclick="earn()">Earn</button>
+</div>
+
+<script>
+
+function earn(){
+window.open("https://google.com");
+}
+
 </script>
+
+</body>
+</html>
