@@ -80,7 +80,7 @@
                 <i class="fa-solid fa-gauge-high"></i> 
                 <span>Dashboard (Bảng Điều Khiển)</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('othersites')">
                 <i class="fa-solid fa-building-columns"></i>
                 <span>Other Sites To Earn Money / Những web/app khác kiếm thêm thu nhập</span>
             </div>
@@ -88,7 +88,7 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Affiliate (Giới Thiệu Bạn Bè)</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('contest')">
                 <i class="fa-solid fa-trophy"></i>
                 <span>Contest (Đua Top Giới Thiệu)</span>
             </div>
@@ -97,28 +97,20 @@
                 <span>Rút Tiền (For VietNam)</span>
             </div>
 
-            <div class="sidebar-section-title">Challenges</div>
+            <div class="sidebar-section-title">Hệ Thống Link</div>
             
-            <div class="nav-item">
-                <i class="fa-solid fa-rectangle-ad"></i>
-                <span>PTC Ads (Quảng Cáo Nhấp Chuột)</span>
-            </div>
             <div class="nav-item" onclick="showSection('home')">
                 <i class="fa-solid fa-link"></i>
                 <span>Shortlink (Liên Kết Ngắn)</span>
             </div>
-            <div class="nav-item">
-                <i class="fa-solid fa-layer-group"></i>
-                <span>Offerwalls (Những Tường Ưu Đãi Khác)</span>
-            </div>
 
             <div class="sidebar-section-title">Advertiser</div>
 
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('advertiser')">
                 <i class="fa-solid fa-bullhorn"></i>
                 <span>Advertiser</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" onclick="showSection('deposit')">
                 <i class="fa-solid fa-wallet"></i>
                 <span>Deposit (Nạp Tiền)</span>
             </div>
@@ -329,6 +321,124 @@
                             <tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: OTHER SITES (CÁC TRANG KHÁC) -->
+        <section id="othersites-section" class="hidden space-y-8">
+            <div class="glass-card p-10">
+                <h2 class="text-2xl font-black text-white mb-6">Top Web/App Kiếm Tiền Uy Tín</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 flex items-center gap-6 hover:border-blue-500 transition cursor-pointer">
+                        <div class="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 text-2xl"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-white">Faucethub Pro</h4>
+                            <p class="text-xs text-slate-400">Kiếm tiền từ việc làm nhiệm vụ và vòi (faucet).</p>
+                        </div>
+                        <a href="#" class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold text-white">THAM GIA</a>
+                    </div>
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 flex items-center gap-6 hover:border-purple-500 transition cursor-pointer">
+                        <div class="w-16 h-16 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500 text-2xl"><i class="fa-solid fa-gamepad"></i></div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-white">GameEarn VN</h4>
+                            <p class="text-xs text-slate-400">Chơi game giải trí kiếm thêm thu nhập mỗi ngày.</p>
+                        </div>
+                        <a href="#" class="bg-purple-600 px-4 py-2 rounded-lg text-xs font-bold text-white">THAM GIA</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: CONTEST (ĐUA TOP) -->
+        <section id="contest-section" class="hidden space-y-8">
+            <div class="glass-card p-10 text-center space-y-6">
+                <div class="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-500 text-3xl mx-auto"><i class="fa-solid fa-trophy"></i></div>
+                <h2 class="text-3xl font-black text-white">Cuộc Đua Giới Thiệu Tháng 3</h2>
+                <p class="text-slate-400 max-w-lg mx-auto">Top 5 người giới thiệu nhiều nhất trong tháng sẽ nhận được phần thưởng tiền mặt cực hấp dẫn!</p>
+                <div class="flex justify-center gap-4">
+                    <div class="px-6 py-2 bg-yellow-500/20 text-yellow-500 rounded-full text-xs font-bold">Giải Nhất: 50$</div>
+                    <div class="px-6 py-2 bg-slate-500/20 text-slate-300 rounded-full text-xs font-bold">Giải Nhì: 25$</div>
+                    <div class="px-6 py-2 bg-orange-500/20 text-orange-500 rounded-full text-xs font-bold">Giải Ba: 10$</div>
+                </div>
+            </div>
+
+            <div class="glass-card p-10">
+                <h3 class="text-xl font-black text-white mb-6">Bảng Xếp Hạng Hiện Tại</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                            <tr>
+                                <th class="pb-6 px-4 text-center">Hạng</th>
+                                <th class="pb-6 px-4">Thành Viên</th>
+                                <th class="pb-6 px-4">Số Người Giới Thiệu</th>
+                                <th class="pb-6 px-4">Phần Thưởng Dự Kiến</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contest-table-body" class="text-sm">
+                            <!-- Sẽ được load bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADVERTISER (NHÀ QUẢNG CÁO) -->
+        <section id="advertiser-section" class="hidden space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card p-10 space-y-6">
+                    <h2 class="text-2xl font-black text-white">Mua Traffic Chất Lượng</h2>
+                    <p class="text-slate-400 text-sm">Quảng bá website của bạn đến hàng ngàn người dùng thực thông qua hệ thống rút gọn link.</p>
+                    <ul class="space-y-4 text-sm">
+                        <li class="flex items-center gap-3 text-slate-300"><i class="fa-solid fa-check-circle text-green-500"></i> Người dùng thực 100%</li>
+                        <li class="flex items-center gap-3 text-slate-300"><i class="fa-solid fa-check-circle text-green-500"></i> Nhắm mục tiêu theo quốc gia</li>
+                        <li class="flex items-center gap-3 text-slate-300"><i class="fa-solid fa-check-circle text-green-500"></i> Giá chỉ từ 0.001$/click</li>
+                    </ul>
+                    <button class="w-full accent-gradient py-4 rounded-2xl font-black text-white shadow-xl">BẮT ĐẦU QUẢNG CÁO</button>
+                </div>
+                <div class="glass-card p-10 space-y-6">
+                    <h2 class="text-2xl font-black text-white">Bảng Giá Quảng Cáo</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                            <span class="text-slate-300 font-bold">1,000 Views</span>
+                            <span class="text-blue-400 font-black">1.00 $</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                            <span class="text-slate-300 font-bold">5,000 Views</span>
+                            <span class="text-blue-400 font-black">4.50 $ <span class="text-[10px] text-green-400">(-10%)</span></span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                            <span class="text-slate-300 font-bold">10,000 Views</span>
+                            <span class="text-blue-400 font-black">8.00 $ <span class="text-[10px] text-green-400">(-20%)</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DEPOSIT (NẠP TIỀN) -->
+        <section id="deposit-section" class="hidden space-y-8">
+            <div class="glass-card p-10">
+                <h2 class="text-2xl font-black text-white mb-8 text-center">Nạp Tiền Vào Tài Khoản</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-8 bg-slate-800/50 rounded-2xl border border-slate-700 text-center space-y-4 hover:border-pink-500 transition cursor-pointer">
+                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" class="w-16 h-16 mx-auto rounded-xl" alt="Momo">
+                        <h4 class="font-bold text-white">Ví MoMo</h4>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Nạp Tự Động 24/7</p>
+                    </div>
+                    <div class="p-8 bg-slate-800/50 rounded-2xl border border-slate-700 text-center space-y-4 hover:border-blue-500 transition cursor-pointer">
+                        <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/6/0oxhzjmbe09d1686814406087.png" class="w-16 h-16 mx-auto rounded-xl" alt="Bank">
+                        <h4 class="font-bold text-white">Ngân Hàng VN</h4>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Chuyển Khoản Nhanh</p>
+                    </div>
+                    <div class="p-8 bg-slate-800/50 rounded-2xl border border-slate-700 text-center space-y-4 hover:border-orange-500 transition cursor-pointer">
+                        <div class="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 text-2xl mx-auto"><i class="fa-solid fa-credit-card"></i></div>
+                        <h4 class="font-bold text-white">Thẻ Cào</h4>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Chiết Khấu 25%</p>
+                    </div>
+                </div>
+                <div class="mt-10 p-6 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-center">
+                    <p class="text-blue-400 text-sm font-medium">Bạn cần nạp tiền để tạo chiến dịch quảng cáo hoặc nâng cấp tài khoản VIP.</p>
                 </div>
             </div>
         </section>
@@ -662,6 +772,10 @@
                 'home': 'Bảng Điều Khiển',
                 'affiliate': 'Giới Thiệu Bạn Bè',
                 'withdraw': 'Rút Tiền Hệ Thống',
+                'othersites': 'Kiếm Thêm Thu Nhập',
+                'contest': 'Đua Top Giới Thiệu',
+                'advertiser': 'Dành Cho Nhà Quảng Cáo',
+                'deposit': 'Nạp Tiền Tài Khoản',
                 'admin': 'Quản Trị Hệ Thống'
             };
             document.getElementById('page-title').textContent = titles[name] || 'Bảng Điều Khiển';
@@ -670,6 +784,7 @@
             if (name === 'admin') loadAdminLinks();
             if (name === 'affiliate') loadAffiliateData();
             if (name === 'withdraw') loadWithdrawData();
+            if (name === 'contest') loadContestData();
 
             // Set active sidebar item
             const sidebarItems = document.querySelectorAll('.nav-item');
@@ -681,6 +796,34 @@
             
             // Close mobile menu
             document.querySelector('.sidebar').classList.remove('active');
+        }
+
+        async function loadContestData() {
+            const tbody = document.getElementById('contest-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Đang tải bảng xếp hạng...</td></tr>';
+            
+            // Mock data cho Contest
+            const mockContest = [
+                { email: 'admin@linkpro.com', refs: 150, reward: '50$' },
+                { email: 'user77@gmail.com', refs: 89, reward: '25$' },
+                { email: 'kiemtien24h@vn.com', refs: 45, reward: '10$' },
+                { email: 'mmo_master@yahoo.com', refs: 32, reward: '5$' },
+                { email: 'tester123@outlook.com', refs: 12, reward: '2$' }
+            ];
+
+            tbody.innerHTML = '';
+            mockContest.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                const medalColor = index === 0 ? 'text-yellow-500' : (index === 1 ? 'text-slate-300' : (index === 2 ? 'text-orange-500' : 'text-slate-500'));
+                tr.innerHTML = `
+                    <td class="py-6 px-4 text-center font-black ${medalColor}">${index + 1}</td>
+                    <td class="py-6 px-4 font-bold text-white">${item.email.split('@')[0]}***@${item.email.split('@')[1]}</td>
+                    <td class="py-6 px-4 text-blue-400 font-black">${item.refs}</td>
+                    <td class="py-6 px-4 text-green-400 font-black">${item.reward}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         async function loadAffiliateData() {
