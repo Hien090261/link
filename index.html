@@ -33,7 +33,11 @@
         .settings-btn { color: #64748b; font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
         .settings-btn:hover { color: #94a3b8; }
         .collapse-btn { position: absolute; right: -15px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; background: #1a2236; border: 1px solid rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; z-index: 60; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; }
+        .mission-card { background: rgba(30, 41, 59, 0.7); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s; }
+        .mission-card:hover { border-color: #3b82f6; transform: translateY(-5px); background: rgba(30, 41, 59, 0.9); }
+        .btn-execute { background: #22c55e; color: white; padding: 0.5rem 1.5rem; border-radius: 10px; font-weight: 700; transition: all 0.2s; }
+        .btn-execute:hover { background: #16a34a; transform: scale(1.05); }
+        .btn-measure { background: #475569; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
         .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
         .hidden { display: none; }
         @media (max-width: 1024px) { 
@@ -146,57 +150,36 @@
 
         <!-- SECTION: DASHBOARD -->
         <section id="home-section" class="space-y-8">
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="glass-card p-8 border-l-4 border-blue-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-blue-500/10 rounded-xl text-blue-500"><i class="fa-solid fa-mouse-pointer text-xl"></i></div>
-                        <span class="text-[10px] font-black text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md">+12%</span>
+            <!-- Balance Card -->
+            <div class="glass-card p-6 flex items-center justify-between border-b-4 border-blue-500">
+                <div class="flex items-center gap-4">
+                    <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-500 text-2xl"><i class="fa-solid fa-wallet"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Số dư khả dụng</p>
+                        <h3 id="stat-earnings" class="text-3xl font-black text-white">0.00 $</h3>
                     </div>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Tổng Số Click</p>
-                    <h3 id="stat-clicks" class="text-4xl font-black text-white">0</h3>
                 </div>
-                <div class="glass-card p-8 border-l-4 border-green-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-green-500/10 rounded-xl text-green-500"><i class="fa-solid fa-dollar-sign text-xl"></i></div>
-                        <span class="text-[10px] font-black text-green-500 bg-green-500/10 px-2 py-1 rounded-md">LIVE</span>
-                    </div>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Số Dư Hiện Tại</p>
-                    <h3 id="stat-earnings" class="text-4xl font-black text-green-400">0.00 $</h3>
-                </div>
-                <div class="glass-card p-8 border-l-4 border-purple-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-purple-500/10 rounded-xl text-purple-500"><i class="fa-solid fa-link text-xl"></i></div>
-                    </div>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Link Đã Tạo</p>
-                    <h3 id="stat-links" class="text-4xl font-black text-white">0</h3>
-                </div>
-                <div class="glass-card p-8 border-l-4 border-orange-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-orange-500/10 rounded-xl text-orange-500"><i class="fa-solid fa-money-bill-transfer text-xl"></i></div>
-                    </div>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Tổng Tiền Đã Rút</p>
-                    <h3 id="stat-withdrawn" class="text-4xl font-black text-white">0.00 $</h3>
+                <div class="text-right hidden md:block">
+                    <p class="text-xs text-pink-500 font-bold italic">Hệ thống check VI PHẠM tự động nhé!</p>
                 </div>
             </div>
 
-            <!-- Shorten Area -->
-            <div class="glass-card p-10 text-center">
-                <h2 class="text-2xl font-black text-white mb-6">Tạo Link Rút Gọn Mới</h2>
-                <div id="login-msg" class="p-6 bg-slate-800/50 rounded-2xl border border-dashed border-slate-600 text-slate-400 font-medium">Bạn cần đăng nhập để sử dụng tính năng này!</div>
-                <div id="link-form" class="hidden max-w-2xl mx-auto space-y-4">
-                    <div class="flex flex-col md:flex-row gap-3">
-                        <input type="url" id="targetUrlInput" placeholder="Dán link gốc của bạn vào đây..." 
-                            class="flex-1 bg-slate-900 border border-slate-700 px-6 py-4 rounded-2xl focus:border-blue-500 outline-none text-white">
-                        <button id="shortenBtn" class="accent-gradient px-10 py-4 rounded-2xl font-black text-white shadow-xl shadow-blue-500/20 hover:scale-105 transition">RÚT GỌN</button>
-                    </div>
-                    <div id="result" class="hidden animate-bounce-in">
-                        <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col md:flex-row items-center gap-4">
-                            <input type="text" id="shortUrlOutput" readonly class="flex-1 bg-transparent border-none outline-none text-blue-400 font-mono font-bold text-lg w-full text-center md:text-left">
-                            <button id="copyBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Copy Link</button>
-                        </div>
+            <!-- Task Wall Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                    <i class="fa-solid fa-list-check text-blue-500"></i> Nhiệm vụ vượt link
+                </h2>
+                <div class="flex gap-3">
+                    <div class="px-4 py-2 bg-slate-800 rounded-xl text-[10px] font-bold text-slate-400 uppercase tracking-widest border border-slate-700">
+                        Hôm nay: <span class="text-blue-400" id="today-tasks-count">0/0</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Mission Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="mission-grid">
+                <!-- Mission cards will be loaded here -->
+                <div class="col-span-full py-20 text-center text-slate-500 italic">Đang tải nhiệm vụ...</div>
             </div>
         </section>
 
@@ -458,6 +441,7 @@
                     <div class="flex gap-4">
                         <button onclick="loadAdminLinks()" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-blue-600/30 transition">Link Đã Tạo</button>
                         <button onclick="loadAdminWithdrawals()" class="bg-purple-600/20 text-purple-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-purple-600/30 transition">Yêu Cầu Rút Tiền</button>
+                        <button onclick="loadAdminMissions()" class="bg-green-600/20 text-green-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-green-600/30 transition">Nhiệm Vụ</button>
                         <button onclick="loadAdminUsers()" class="bg-orange-600/20 text-orange-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-orange-600/30 transition">Người Dùng</button>
                         <button onclick="refreshAdminView()" class="bg-slate-600/20 text-slate-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-600/30 transition"><i class="fa-solid fa-rotate"></i></button>
                     </div>
@@ -515,8 +499,50 @@
                          </table>
                      </div>
                  </div>
+
+                 <div id="admin-missions-view" class="hidden space-y-6">
+                    <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
+                        <h3 class="text-lg font-bold text-white mb-4">Thêm Nhiệm Vụ Mới</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="missionName" placeholder="Tên nhà cung cấp (VD: Yeumoney)" class="bg-slate-800 border-none px-4 py-3 rounded-xl text-sm text-white outline-none">
+                            <input type="number" id="missionReward" placeholder="Tiền thưởng (VD: 0.05)" step="0.01" class="bg-slate-800 border-none px-4 py-3 rounded-xl text-sm text-white outline-none">
+                            <input type="url" id="missionLink" placeholder="Link rút gọn trung gian" class="bg-slate-800 border-none px-4 py-3 rounded-xl text-sm text-white outline-none">
+                            <input type="text" id="missionCode" placeholder="Mã xác nhận (Code lấy từ link)" class="bg-slate-800 border-none px-4 py-3 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <button onclick="addMission()" class="mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-green-700 transition">THÊM NHIỆM VỤ</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                                <tr>
+                                    <th class="pb-6 px-4">Nhiệm Vụ</th>
+                                    <th class="pb-6 px-4">Thưởng</th>
+                                    <th class="pb-6 px-4">Mã Code</th>
+                                    <th class="pb-6 px-4">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-missions-table-body" class="text-sm"></tbody>
+                        </table>
+                    </div>
+                 </div>
             </div>
         </section>
+
+        <!-- MISSION SUBMIT MODAL -->
+        <div id="mission-modal" class="hidden fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4">
+            <div class="mission-card w-full max-w-md p-10 relative bg-slate-900 border border-slate-700">
+                <button onclick="toggleMissionModal(false)" class="absolute top-6 right-6 text-slate-500 hover:text-white text-2xl">&times;</button>
+                <h2 class="text-2xl font-black text-center mb-4 text-white">Xác Nhận Nhiệm Vụ</h2>
+                <p id="mission-modal-name" class="text-blue-400 font-bold text-center mb-6 text-lg"></p>
+                <div class="space-y-5">
+                    <p class="text-xs text-slate-400 leading-relaxed text-center bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                        Vui lòng nhập mã xác nhận bạn nhận được sau khi vượt link trung gian để nhận thưởng.
+                    </p>
+                    <input type="text" id="missionCodeInput" placeholder="Nhập mã code tại đây..." class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl focus:border-blue-500 outline-none text-white text-center font-black tracking-widest">
+                    <button id="missionSubmitBtn" class="w-full bg-blue-600 font-black py-4 rounded-2xl mt-4 text-white shadow-xl hover:bg-blue-700 transition">NHẬN THƯỞNG NGAY</button>
+                </div>
+            </div>
+        </div>
 
         <!-- AUTH MODAL -->
         <div id="auth-modal" class="hidden fixed inset-0 bg-slate-950/90 z-[100] flex items-center justify-center p-4">
@@ -745,6 +771,8 @@
                  loadAdminLinks();
              } else if (!document.getElementById('admin-withdrawals-view').classList.contains('hidden')) {
                  loadAdminWithdrawals();
+             } else if (!document.getElementById('admin-missions-view').classList.contains('hidden')) {
+                 loadAdminMissions();
              } else {
                  loadAdminUsers();
              }
@@ -754,6 +782,7 @@
              document.getElementById('admin-links-view').classList.remove('hidden');
              document.getElementById('admin-withdrawals-view').classList.add('hidden');
              document.getElementById('admin-users-view').classList.add('hidden');
+             document.getElementById('admin-missions-view').classList.add('hidden');
             const tbody = document.getElementById('links-table-body');
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10">Đang tải...</td></tr>';
             const snap = await db.collection('links').orderBy('createdAt', 'desc').get();
@@ -865,6 +894,155 @@
              }
          }
 
+         async function loadAdminMissions() {
+            document.getElementById('admin-links-view').classList.add('hidden');
+            document.getElementById('admin-withdrawals-view').classList.add('hidden');
+            document.getElementById('admin-users-view').classList.add('hidden');
+            document.getElementById('admin-missions-view').classList.remove('hidden');
+            
+            const tbody = document.getElementById('admin-missions-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10">Đang tải nhiệm vụ...</td></tr>';
+            
+            const snap = await db.collection('missions').orderBy('createdAt', 'desc').get();
+            tbody.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                tr.innerHTML = `
+                    <td class="py-4 px-4">
+                        <div class="font-bold text-white">${data.name}</div>
+                        <div class="text-[10px] text-blue-400 truncate max-w-[200px]">${data.link}</div>
+                    </td>
+                    <td class="py-4 px-4 font-black text-green-400">${data.reward.toFixed(2)} $</td>
+                    <td class="py-4 px-4 text-slate-400 font-mono">${data.code}</td>
+                    <td class="py-4 px-4">
+                        <button onclick="deleteMission('${doc.id}')" class="text-red-500 font-bold hover:underline">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+         }
+
+         window.addMission = async () => {
+            const name = document.getElementById('missionName').value;
+            const reward = parseFloat(document.getElementById('missionReward').value);
+            const link = document.getElementById('missionLink').value;
+            const code = document.getElementById('missionCode').value;
+
+            if (!name || !reward || !link || !code) return alert("Vui lòng nhập đầy đủ thông tin!");
+
+            await db.collection('missions').add({
+                name, reward, link, code,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Đã thêm nhiệm vụ!");
+            loadAdminMissions();
+            // Clear inputs
+            document.getElementById('missionName').value = '';
+            document.getElementById('missionReward').value = '';
+            document.getElementById('missionLink').value = '';
+            document.getElementById('missionCode').value = '';
+         };
+
+         window.deleteMission = async (id) => {
+            if (confirm("Xóa nhiệm vụ này?")) {
+                await db.collection('missions').doc(id).delete();
+                loadAdminMissions();
+            }
+         };
+
+         let currentMissionId = null;
+
+         window.toggleMissionModal = (show) => {
+            document.getElementById('mission-modal').classList.toggle('hidden', !show);
+            if (!show) {
+                currentMissionId = null;
+                document.getElementById('missionCodeInput').value = '';
+            }
+         };
+
+         window.openMissionSubmit = (id, name) => {
+            currentMissionId = id;
+            document.getElementById('mission-modal-name').textContent = name;
+            toggleMissionModal(true);
+         };
+
+         document.getElementById('missionSubmitBtn').onclick = async () => {
+            const codeInput = document.getElementById('missionCodeInput').value.trim();
+            if (!codeInput) return alert("Vui lòng nhập mã xác nhận!");
+
+            const missionDoc = await db.collection('missions').doc(currentMissionId).get();
+            const missionData = missionDoc.data();
+
+            if (codeInput === missionData.code) {
+                await db.collection('users').doc(auth.currentUser.uid).update({
+                    balance: firebase.firestore.FieldValue.increment(missionData.reward),
+                    totalClicks: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                await db.collection('mission_history').add({
+                    userId: auth.currentUser.uid,
+                    missionId: currentMissionId,
+                    reward: missionData.reward,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert(`Chúc mừng! Bạn đã nhận được ${missionData.reward.toFixed(2)}$`);
+                toggleMissionModal(false);
+                const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
+                document.getElementById('stat-earnings').textContent = userDoc.data().balance.toFixed(2) + ' $';
+            } else {
+                alert("Mã xác nhận không đúng! Vui lòng kiểm tra lại.");
+            }
+         };
+
+         async function loadMissions() {
+            const grid = document.getElementById('mission-grid');
+            if (!grid) return;
+            grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 italic">Đang tải nhiệm vụ...</div>';
+            
+            const snap = await db.collection('missions').orderBy('createdAt', 'desc').get();
+            if (snap.empty) {
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 italic">Hiện tại chưa có nhiệm vụ nào.</div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                const card = document.createElement('div');
+                card.className = "mission-card p-6 flex flex-col gap-4";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-white text-lg">${data.name}</h4>
+                        <div class="px-2 py-1 bg-blue-500/10 rounded text-[10px] font-bold text-blue-400">Lv.1</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn-measure"><i class="fa-solid fa-chart-line"></i> Đo lường</button>
+                        <a href="${data.link}" target="_blank" onclick="openMissionSubmit('${doc.id}', '${data.name}')" class="btn-execute">Thực hiện</a>
+                    </div>
+                    <p class="text-xs text-slate-500 text-center italic">Vượt Link Lấy Mã</p>
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                        <div class="text-center">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold">Thu nhập</p>
+                            <p class="text-xs font-black text-blue-400">${data.reward.toFixed(2)}$</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold">Kinh nghiệm</p>
+                            <p class="text-xs font-black text-green-400">10 Exp</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[9px] text-slate-500 uppercase font-bold">Lượt còn</p>
+                            <p class="text-xs font-black text-pink-400">1/1</p>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            document.getElementById('today-tasks-count').textContent = `0/${snap.size}`;
+         }
+
          window.toggleUserBan = async (id, isCurrentlyBanned) => {
              const action = isCurrentlyBanned ? 'Mở chặn' : 'Chặn';
              if (confirm(`${action} người dùng này?`)) {
@@ -948,6 +1126,7 @@
             document.getElementById('page-subtitle').textContent = name === 'home' ? 'Chào mừng trở lại!' : 'Khu vực thành viên';
 
             if (name === 'admin') loadAdminLinks();
+            if (name === 'home') loadMissions();
             if (name === 'affiliate') loadAffiliateData();
             if (name === 'withdraw') loadWithdrawData();
             if (name === 'contest') loadContestData();
