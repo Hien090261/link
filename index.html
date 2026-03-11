@@ -64,13 +64,15 @@ border-radius:6px;
 
 </div>
 
-<!-- TASK DASHBOARD -->
+<!-- DASHBOARD -->
 
 <div class="box" id="taskBox" style="display:none;">
 
 <h2>Task Dashboard</h2>
 
 <p id="user"></p>
+
+<p>Earn count: <span id="count">0</span></p>
 
 <button onclick="logout()">Logout</button>
 
@@ -86,47 +88,86 @@ Upto 2 Steps
 <button onclick="earn2()">Earn</button>
 </div>
 
+<br>
+
+<button onclick="verifyTask()">Verify Task</button>
+
 </div>
 
 <script>
+
+let count = 0
+let canVerify = false
 
 let upto3 = [
 
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
-"https://uptolink.one/PY6BEE",
-"https://uptolink.one/TLFtf",
-"https://uptolink.one/fqH5i",
-"https://uptolink.one/H7Wr"
+"https://uptolink.one/PY6BEE"
 
-];
-
-function earn3(){
-
-let random = Math.floor(Math.random()*upto3.length);
-
-window.open(upto3[random]);
-
-}
+]
 
 let upto2 = [
 
 "https://uptolink.one/1s2VD",
 "https://uptolink.one/E9Mi2Kb",
-"https://uptolink.one/2mPbEHb",
-"https://uptolink.one/6AUPMm",
-"https://uptolink.one/V52a",
-"https://uptolink.one/zuhnw",
-"https://uptolink.one/ki7bozt",
-"https://uptolink.one/m1q5aVu"
+"https://uptolink.one/2mPbEHb"
 
-];
+]
+
+function earn3(){
+
+let random = Math.floor(Math.random()*upto3.length)
+
+window.open(upto3[random])
+
+startVerify()
+
+}
 
 function earn2(){
 
-let random = Math.floor(Math.random()*upto2.length);
+let random = Math.floor(Math.random()*upto2.length)
 
-window.open(upto2[random]);
+window.open(upto2[random])
+
+startVerify()
+
+}
+
+function startVerify(){
+
+canVerify = false
+
+alert("Complete the link then verify after 50 seconds")
+
+setTimeout(()=>{
+
+canVerify = true
+
+alert("You can now verify the task")
+
+},50000)
+
+}
+
+function verifyTask(){
+
+if(canVerify){
+
+count++
+
+document.getElementById("count").innerText = count
+
+alert("Task verified!")
+
+canVerify = false
+
+}else{
+
+alert("Wait 50 seconds before verifying!")
+
+}
 
 }
 
@@ -134,9 +175,9 @@ window.open(upto2[random]);
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
 
 const firebaseConfig = {
 
@@ -147,35 +188,35 @@ storageBucket: "link-task-32a86.firebasestorage.app",
 messagingSenderId: "859078395434",
 appId: "1:859078395434:web:4692a5d5e09d7ab4716553"
 
-};
+}
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
 
 window.register = function(){
 
-let email=document.getElementById("email").value;
-let password=document.getElementById("password").value;
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
 
 createUserWithEmailAndPassword(auth,email,password)
 .then(()=>alert("Register success"))
-.catch(e=>alert(e.message));
+.catch(e=>alert(e.message))
 
 }
 
 window.login = function(){
 
-let email=document.getElementById("email").value;
-let password=document.getElementById("password").value;
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
 
 signInWithEmailAndPassword(auth,email,password)
-.catch(e=>alert(e.message));
+.catch(e=>alert(e.message))
 
 }
 
 window.logout = function(){
 
-signOut(auth);
+signOut(auth)
 
 }
 
@@ -183,19 +224,19 @@ onAuthStateChanged(auth,(user)=>{
 
 if(user){
 
-document.getElementById("loginBox").style.display="none";
-document.getElementById("taskBox").style.display="block";
+document.getElementById("loginBox").style.display="none"
+document.getElementById("taskBox").style.display="block"
 
-document.getElementById("user").innerText="Logged in: "+user.email;
+document.getElementById("user").innerText="Logged in: "+user.email
 
 }else{
 
-document.getElementById("loginBox").style.display="block";
-document.getElementById("taskBox").style.display="none";
+document.getElementById("loginBox").style.display="block"
+document.getElementById("taskBox").style.display="none"
 
 }
 
-});
+})
 
 </script>
 
