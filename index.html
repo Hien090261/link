@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-
 <html>
+
 <head>
+
 <title>Link Task</title>
 
 <style>
@@ -68,15 +69,17 @@ padding:8px;
 
 <h2>Login</h2>
 
-<input id="email" placeholder="Email"><br> <input id="password" type="password" placeholder="Password"><br>
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
 
-<button onclick="login()">Login</button> <button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
 
 </div>
 
 <!-- USER DASHBOARD -->
 
-<div class="box" id="taskBox" style="display:none;">
+<div class="box" id="taskBox" style="display:none">
 
 <h2>Task Dashboard</h2>
 
@@ -87,15 +90,23 @@ padding:8px;
 <button onclick="logout()">Logout</button>
 
 <div class="task">
+
 Upto 3 Steps
+
 <br>
+
 <button onclick="earn3()">Earn</button>
+
 </div>
 
 <div class="task">
+
 Upto 2 Steps
+
 <br>
+
 <button onclick="earn2()">Earn</button>
+
 </div>
 
 <br>
@@ -106,7 +117,7 @@ Upto 2 Steps
 
 <!-- ADMIN PANEL -->
 
-<div class="box" id="adminBox" style="display:none;">
+<div class="box" id="adminBox" style="display:none">
 
 <h2>Admin Panel</h2>
 
@@ -134,15 +145,19 @@ Upto 2 Steps
 let canVerify=false
 
 let upto3=[
+
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
 "https://uptolink.one/PY6BEE"
+
 ]
 
 let upto2=[
+
 "https://uptolink.one/1s2VD",
 "https://uptolink.one/E9Mi2Kb",
 "https://uptolink.one/2mPbEHb"
+
 ]
 
 function earn3(){
@@ -203,13 +218,15 @@ collection,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
-const firebaseConfig={
+const firebaseConfig = {
+
 apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
 authDomain:"link-task-32a86.firebaseapp.com",
 projectId:"link-task-32a86",
 storageBucket:"link-task-32a86.firebasestorage.app",
 messagingSenderId:"859078395434",
 appId:"1:859078395434:web:4692a5d5e09d7ab4716553"
+
 }
 
 const app=initializeApp(firebaseConfig)
@@ -218,7 +235,7 @@ const db=getFirestore(app)
 
 let userId=null
 
-const ADMIN_EMAIL="youradmin@gmail.com"
+const ADMIN_EMAIL="nguyenthanhhien1333@gmail.com"
 
 window.register=async function(){
 
@@ -294,9 +311,7 @@ query.forEach((docu)=>{
 
 let d=docu.data()
 
-let row=
-
-"<tr><td>"+d.email+"</td><td>"+d.earn+"</td></tr>"
+let row="<tr><td>"+d.email+"</td><td>"+d.earn+"</td></tr>"
 
 table.innerHTML+=row
 
@@ -347,4 +362,5 @@ document.getElementById("adminBox").style.display="none"
 </script>
 
 </body>
+
 </html>
