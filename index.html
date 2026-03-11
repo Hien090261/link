@@ -67,30 +67,22 @@ border-radius:6px;
 <h3>Tasks</h3>
 
 <div class="task">
-Task 1
+Upto 3 Steps
 <br>
-<button onclick="earn()">Earn</button>
+<button onclick="earn3()">Earn</button>
 </div>
 
 <div class="task">
-Task 2
+Upto 2 Steps
 <br>
-<button onclick="earn()">Earn</button>
+<button onclick="earn2()">Earn</button>
 </div>
-
-<div class="task">
-Task 3
-<br>
-<button onclick="earn()">Earn</button>
-</div>
-
-<p id="status"></p>
 
 </div>
 
 <script>
 
-let links = [
+let upto3 = [
 
 "https://uptolink.one/O6E4CDUB",
 "https://uptolink.one/KFsVT",
@@ -101,13 +93,32 @@ let links = [
 
 ];
 
-function earn(){
+function earn3(){
 
-let random = Math.floor(Math.random()*links.length);
+let random = Math.floor(Math.random()*upto3.length);
 
-window.open(links[random]);
+window.open(upto3[random]);
 
-document.getElementById("status").innerText="Task opened";
+}
+
+let upto2 = [
+
+"https://uptolink.one/1s2VD",
+"https://uptolink.one/E9Mi2Kb",
+"https://uptolink.one/2mPbEHb",
+"https://uptolink.one/6AUPMm",
+"https://uptolink.one/V52a",
+"https://uptolink.one/zuhnw",
+"https://uptolink.one/ki7bozt",
+"https://uptolink.one/m1q5aVu"
+
+];
+
+function earn2(){
+
+let random = Math.floor(Math.random()*upto2.length);
+
+window.open(upto2[random]);
 
 }
 
