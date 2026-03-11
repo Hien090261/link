@@ -1,92 +1,160 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Task Pro - Email Login</title>
+    <title>Link Earn Pro - Hệ Thống Rút Gọn Kiếm Tiền</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .gradient-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
         .hidden { display: none; }
+        .step-active { color: #3b82f6; border-color: #3b82f6; }
     </style>
 </head>
-<body class="gradient-bg min-h-screen font-sans text-slate-800">
+<body class="min-h-screen">
 
     <!-- NAVBAR -->
-    <nav class="glass sticky top-0 z-50 px-6 py-4 shadow-md flex justify-between items-center">
-        <div class="text-2xl font-black text-indigo-700 tracking-tighter cursor-pointer" onclick="location.reload()">LINKTASK</div>
+    <nav class="sticky top-0 z-50 glass-card px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+            <div class="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center font-black text-xl">L</div>
+            <span class="text-xl font-extrabold tracking-tight">LINKEARN <span class="text-blue-500 italic text-sm">PRO</span></span>
+        </div>
         <div id="auth-nav" class="flex items-center gap-4">
-            <span id="user-display" class="hidden text-sm font-bold text-slate-600"></span>
-            <button id="showLoginBtn" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-700 transition">Đăng Nhập</button>
-            <button id="adminBtn" class="hidden bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-orange-600">Admin</button>
-            <button id="logoutBtn" class="hidden text-slate-500 text-sm font-bold hover:text-red-500">Thoát</button>
+            <div id="user-stats" class="hidden flex items-center gap-4 px-4 py-2 bg-slate-800 rounded-full border border-slate-700">
+                <div class="flex flex-col text-right">
+                    <span id="user-email" class="text-[10px] text-slate-400 font-bold uppercase">Admin</span>
+                    <span id="user-balance" class="text-sm font-black text-green-400">0.00 $</span>
+                </div>
+            </div>
+            <button id="showLoginBtn" class="accent-gradient px-6 py-2 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:scale-105 transition">Đăng Nhập</button>
+            <button id="adminBtn" class="hidden bg-orange-500 px-4 py-2 rounded-xl font-bold text-sm">Quản Trị</button>
+            <button id="logoutBtn" class="hidden text-slate-400 hover:text-red-400 font-bold text-sm">Thoát</button>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto p-6">
+    <div class="max-w-6xl mx-auto p-6">
         
-        <!-- SECTION: FORM ĐĂNG NHẬP (MODAL-LIKE) -->
-        <div id="auth-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
-                <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
-                <h2 id="auth-title" class="text-2xl font-black text-center mb-6">Đăng Nhập</h2>
+        <!-- SECTION: AUTH MODAL -->
+        <div id="auth-modal" class="hidden fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-4">
+            <div class="glass-card w-full max-w-md p-8 rounded-3xl relative">
+                <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl">&times;</button>
+                <h2 id="auth-title" class="text-3xl font-black text-center mb-8">Chào Mừng Trở Lại</h2>
                 <div class="space-y-4">
-                    <input type="email" id="emailInput" placeholder="Email của bạn" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-indigo-500 outline-none">
-                    <input type="password" id="passwordInput" placeholder="Mật khẩu" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-indigo-500 outline-none">
-                    <button id="authSubmitBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition">Tiếp Tục</button>
-                    <p class="text-center text-sm text-slate-500">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Email Address</label>
+                        <input type="email" id="emailInput" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:border-blue-500 outline-none transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-2">Password</label>
+                        <input type="password" id="passwordInput" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:border-blue-500 outline-none transition">
+                    </div>
+                    <button id="authSubmitBtn" class="w-full accent-gradient font-black py-4 rounded-xl mt-4 shadow-xl shadow-blue-500/20">TIẾP TỤC</button>
+                    <p class="text-center text-sm text-slate-400">
                         <span id="auth-switch-text">Chưa có tài khoản?</span> 
-                        <button onclick="switchAuthMode()" id="auth-switch-btn" class="text-indigo-600 font-bold underline">Đăng ký ngay</button>
+                        <button onclick="switchAuthMode()" id="auth-switch-btn" class="text-blue-400 font-bold hover:underline">Đăng ký ngay</button>
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION: TRANG CHỦ -->
-        <section id="home-section" class="mt-12 text-center">
-            <h1 class="text-5xl font-black text-white mb-6 drop-shadow-lg">Rút Gọn Link Email</h1>
-            <div class="glass p-8 rounded-3xl shadow-2xl max-w-xl mx-auto">
-                <div id="login-msg" class="text-slate-600 font-medium mb-4">Vui lòng đăng nhập để tạo link rút gọn!</div>
-                <div id="link-form" class="hidden space-y-4">
-                    <input type="url" id="targetUrlInput" placeholder="Dán link gốc (https://...)" class="w-full px-5 py-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-500 outline-none text-lg">
-                    <button id="shortenBtn" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl text-xl shadow-xl hover:bg-indigo-700 transition">Tạo Link Vượt</button>
+        <!-- SECTION: DASHBOARD (TRANG CHỦ) -->
+        <section id="home-section" class="space-y-8 mt-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Stat Cards -->
+                <div class="glass-card p-6 rounded-3xl border-l-4 border-blue-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Tổng Số Click</p>
+                    <h3 id="stat-clicks" class="text-3xl font-black">0</h3>
                 </div>
-                <div id="result" class="mt-6 hidden">
-                    <div class="p-4 bg-green-50 rounded-xl border-2 border-green-200">
-                        <div class="flex items-center gap-3">
-                            <input type="text" id="shortUrlOutput" readonly class="flex-1 bg-transparent border-none outline-none text-indigo-700 font-mono font-bold">
-                            <button id="copyBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-bold">Copy</button>
-                        </div>
+                <div class="glass-card p-6 rounded-3xl border-l-4 border-purple-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Thu Nhập (Ước Tính)</p>
+                    <h3 id="stat-earnings" class="text-3xl font-black text-green-400">0.00 $</h3>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border-l-4 border-orange-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Tổng Link Đã Tạo</p>
+                    <h3 id="stat-links" class="text-3xl font-black">0</h3>
+                </div>
+            </div>
+
+            <!-- Create Link Area -->
+            <div class="glass-card p-10 rounded-[2.5rem] text-center space-y-6">
+                <h2 class="text-4xl font-black tracking-tight">Rút Gọn Link & <span class="text-blue-500">Kiếm Tiền</span></h2>
+                <div id="login-msg" class="text-slate-500 font-medium">Bạn cần đăng nhập để bắt đầu kiếm tiền từ link rút gọn!</div>
+                <div id="link-form" class="hidden max-w-2xl mx-auto flex flex-col md:flex-row gap-3">
+                    <input type="url" id="targetUrlInput" placeholder="Dán link của bạn vào đây (https://...)" 
+                        class="flex-1 bg-slate-900 border border-slate-700 px-6 py-4 rounded-2xl focus:border-blue-500 outline-none text-lg">
+                    <button id="shortenBtn" class="accent-gradient px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:scale-105 transition">RÚT GỌN</button>
+                </div>
+                <div id="result" class="mt-6 hidden animate-bounce-in">
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col md:flex-row items-center gap-4 max-w-2xl mx-auto">
+                        <input type="text" id="shortUrlOutput" readonly class="flex-1 bg-transparent border-none outline-none text-blue-400 font-mono font-bold text-xl w-full text-center md:text-left">
+                        <button id="copyBtn" class="w-full md:w-auto bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">Copy Link</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: TRANG CHỜ -->
-        <section id="redirect-section" class="hidden mt-12 text-center">
-            <div class="glass p-10 rounded-3xl shadow-2xl max-w-lg mx-auto">
-                <h2 class="text-2xl font-bold mb-4">Đang chuẩn bị link...</h2>
-                <div class="text-7xl font-black text-indigo-600 mb-6" id="countdown">10</div>
-                <div id="cta" class="hidden">
-                    <a id="targetBtn" href="#" class="inline-block w-full bg-indigo-600 text-white font-black py-4 rounded-2xl text-xl shadow-xl hover:bg-indigo-700 transition">TIẾP TỤC</a>
+        <!-- SECTION: REDIRECT (VƯỢT LINK ĐA BƯỚC) -->
+        <section id="redirect-section" class="hidden mt-12 text-center space-y-8 animate-fade-in">
+            <div class="glass-card p-12 rounded-[3rem] max-w-2xl mx-auto space-y-10">
+                <!-- Steps Progress -->
+                <div class="flex justify-between items-center px-4">
+                    <div id="step1-indicator" class="w-12 h-12 rounded-full border-4 border-slate-700 flex items-center justify-center font-bold step-active">1</div>
+                    <div class="flex-1 h-1 bg-slate-700 mx-2"></div>
+                    <div id="step2-indicator" class="w-12 h-12 rounded-full border-4 border-slate-700 flex items-center justify-center font-bold text-slate-500">2</div>
+                    <div class="flex-1 h-1 bg-slate-700 mx-2"></div>
+                    <div id="step3-indicator" class="w-12 h-12 rounded-full border-4 border-slate-700 flex items-center justify-center font-bold text-slate-500">3</div>
+                </div>
+
+                <!-- Step Contents -->
+                <div id="step-content" class="space-y-6">
+                    <h2 id="step-title" class="text-3xl font-black text-white">Xác minh bạn không phải robot</h2>
+                    <p id="step-desc" class="text-slate-400">Vui lòng chờ đếm ngược để chuyển sang bước tiếp theo.</p>
+                    <div id="countdown-area" class="text-8xl font-black text-blue-500" id="countdown">10</div>
+                    <button id="stepActionBtn" class="hidden w-full accent-gradient font-black py-5 rounded-2xl text-xl shadow-xl shadow-blue-500/20 animate-pulse">
+                        BẤM ĐỂ TIẾP TỤC
+                    </button>
+                    <div id="final-cta" class="hidden">
+                        <a id="targetBtn" href="#" class="inline-block w-full accent-gradient font-black py-6 rounded-2xl text-2xl shadow-xl shadow-blue-500/20 transform hover:scale-105 transition">
+                            LẤY LINK NGAY
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: ADMIN -->
+        <!-- SECTION: ADMIN PANEL -->
         <section id="admin-section" class="hidden mt-12">
-            <div class="glass p-8 rounded-3xl shadow-2xl">
-                <h2 class="text-2xl font-black mb-6">Quản Lý Link</h2>
-                <div id="links-list" class="space-y-3 text-sm"></div>
+            <div class="glass-card p-10 rounded-[2.5rem] space-y-8">
+                <h2 class="text-3xl font-black flex items-center gap-3">
+                    <span class="w-2 h-8 bg-orange-500 rounded-full"></span> Bảng Quản Trị
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-slate-500 text-xs font-bold uppercase tracking-widest border-b border-slate-800">
+                            <tr>
+                                <th class="pb-6">Link Gốc</th>
+                                <th class="pb-6">ID Rút Gọn</th>
+                                <th class="pb-6">Người Tạo</th>
+                                <th class="pb-6">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="links-table-body" class="text-sm">
+                            <!-- Link data -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </div>
 
     <script>
+        // --- CONFIG FIREBASE (Sử dụng config cũ của bạn) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDWwTbMFkK9wXa5uaW6eiVEfFGLQ2ClnEg",
             authDomain: "link-task-32a86.firebaseapp.com",
@@ -102,18 +170,22 @@
         const db = firebase.firestore();
 
         let isLoginMode = true;
+        let currentStep = 1;
+        const EARN_PER_CLICK = 0.05; // Mỗi click được 0.05$
 
-        // UI Elements
+        // UI Helpers
         const authModal = document.getElementById('auth-modal');
         const showLoginBtn = document.getElementById('showLoginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const adminBtn = document.getElementById('adminBtn');
-        const userDisplay = document.getElementById('user-display');
+        const userStats = document.getElementById('user-stats');
+        const userEmailEl = document.getElementById('user-email');
+        const userBalanceEl = document.getElementById('user-balance');
 
         function toggleAuthModal(show) { authModal.classList.toggle('hidden', !show); }
         function switchAuthMode() {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').textContent = isLoginMode ? 'Đăng Nhập' : 'Đăng Ký';
+            document.getElementById('auth-title').textContent = isLoginMode ? 'Chào Mừng Trở Lại' : 'Tạo Tài Khoản Mới';
             document.getElementById('auth-switch-text').textContent = isLoginMode ? 'Chưa có tài khoản?' : 'Đã có tài khoản?';
             document.getElementById('auth-switch-btn').textContent = isLoginMode ? 'Đăng ký ngay' : 'Đăng nhập';
         }
@@ -122,84 +194,185 @@
         logoutBtn.onclick = () => auth.signOut();
         adminBtn.onclick = () => showSection('admin');
 
-        // Auth Logic
+        // --- AUTH LOGIC ---
         document.getElementById('authSubmitBtn').onclick = async () => {
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passwordInput').value;
             try {
                 if (isLoginMode) await auth.signInWithEmailAndPassword(email, pass);
-                else await auth.createUserWithEmailAndPassword(email, pass);
+                else {
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    await db.collection('users').doc(cred.user.uid).set({ balance: 0, totalClicks: 0, totalLinks: 0 });
+                }
                 toggleAuthModal(false);
             } catch (e) { alert('Lỗi: ' + e.message); }
         };
 
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(async user => {
             if (user) {
                 showLoginBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
-                userDisplay.classList.remove('hidden');
-                userDisplay.textContent = user.email;
+                userStats.classList.remove('hidden');
+                userEmailEl.textContent = user.email.split('@')[0];
+                
                 document.getElementById('login-msg').classList.add('hidden');
                 document.getElementById('link-form').classList.remove('hidden');
                 if (user.email === ADMIN_EMAIL) adminBtn.classList.remove('hidden');
+
+                // Load stats
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const data = userDoc.data();
+                    userBalanceEl.textContent = (data.balance || 0).toFixed(2) + ' $';
+                    document.getElementById('stat-earnings').textContent = (data.balance || 0).toFixed(2) + ' $';
+                    document.getElementById('stat-clicks').textContent = data.totalClicks || 0;
+                    document.getElementById('stat-links').textContent = data.totalLinks || 0;
+                }
             } else {
                 showLoginBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
-                userDisplay.classList.add('hidden');
+                userStats.classList.add('hidden');
                 adminBtn.classList.add('hidden');
                 document.getElementById('login-msg').classList.remove('hidden');
                 document.getElementById('link-form').classList.add('hidden');
             }
         });
 
-        // Link Logic
+        // --- LINK LOGIC ---
         document.getElementById('shortenBtn').onclick = async () => {
             const url = document.getElementById('targetUrlInput').value;
-            if (!url) return alert('Nhập link đã!');
-            const doc = await db.collection('links').add({
-                target: url,
-                creator: auth.currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('shortUrlOutput').value = `${window.location.origin}${window.location.pathname}?id=${doc.id}`;
-            document.getElementById('result').classList.remove('hidden');
+            if (!url) return alert('Dán link vào đã!');
+            try {
+                const doc = await db.collection('links').add({
+                    target: url,
+                    creator: auth.currentUser.email,
+                    creatorId: auth.currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    clicks: 0
+                });
+                // Update total links count
+                await db.collection('users').doc(auth.currentUser.uid).update({
+                    totalLinks: firebase.firestore.FieldValue.increment(1)
+                });
+
+                const shortUrl = `${window.location.origin}${window.location.pathname}?id=${doc.id}`;
+                document.getElementById('shortUrlOutput').value = shortUrl;
+                document.getElementById('result').classList.remove('hidden');
+            } catch (e) { alert('Lỗi: ' + e.message); }
         };
 
-        // Redirect & Admin
+        // --- REDIRECT (MULTI-STEP) LOGIC ---
         const params = new URLSearchParams(window.location.search);
         const linkId = params.get('id');
         if (linkId) {
             showSection('redirect');
-            db.collection('links').doc(linkId).get().then(doc => {
-                if (doc.exists) {
-                    let count = 10;
-                    const t = setInterval(() => {
-                        count--;
-                        document.getElementById('countdown').textContent = count;
-                        if (count <= 0) {
-                            clearInterval(t);
-                            document.getElementById('cta').classList.remove('hidden');
-                            document.getElementById('targetBtn').href = doc.data().target;
-                        }
-                    }, 1000);
+            handleMultiStepRedirect(linkId);
+        }
+
+        async function handleMultiStepRedirect(id) {
+            const linkDoc = await db.collection('links').doc(id).get();
+            if (!linkDoc.exists) return alert('Link không tồn tại!');
+            const linkData = linkDoc.data();
+
+            startStep(1, () => {
+                startStep(2, () => {
+                    startStep(3, async () => {
+                        // Cộng tiền cho chủ link khi hoàn thành bước cuối
+                        await db.collection('users').doc(linkData.creatorId).update({
+                            balance: firebase.firestore.FieldValue.increment(EARN_PER_CLICK),
+                            totalClicks: firebase.firestore.FieldValue.increment(1)
+                        });
+                        await db.collection('links').doc(id).update({
+                            clicks: firebase.firestore.FieldValue.increment(1)
+                        });
+                        
+                        document.getElementById('countdown-area').classList.add('hidden');
+                        document.getElementById('final-cta').classList.remove('hidden');
+                        document.getElementById('targetBtn').href = linkData.target;
+                        document.getElementById('step-title').textContent = "Link Đã Sẵn Sàng!";
+                        document.getElementById('step-desc').textContent = "Cảm ơn bạn đã chờ đợi.";
+                    });
+                });
+            });
+        }
+
+        function startStep(step, onFinish) {
+            currentStep = step;
+            updateStepIndicators();
+            const btn = document.getElementById('stepActionBtn');
+            const countdownEl = document.getElementById('countdown-area');
+            
+            btn.classList.add('hidden');
+            countdownEl.classList.remove('hidden');
+            
+            let count = step === 3 ? 5 : 10;
+            countdownEl.textContent = count;
+            
+            if (step === 1) {
+                document.getElementById('step-title').textContent = "Bước 1: Kiểm tra bảo mật";
+                document.getElementById('step-desc').textContent = "Đang quét an toàn cho link của bạn...";
+            } else if (step === 2) {
+                document.getElementById('step-title').textContent = "Bước 2: Xác minh người dùng";
+                document.getElementById('step-desc').textContent = "Vui lòng đợi giây lát...";
+            } else {
+                document.getElementById('step-title').textContent = "Bước cuối: Chuẩn bị link gốc";
+                document.getElementById('step-desc').textContent = "Chỉ còn vài giây nữa thôi!";
+            }
+
+            const t = setInterval(() => {
+                count--;
+                countdownEl.textContent = count;
+                if (count <= 0) {
+                    clearInterval(t);
+                    countdownEl.classList.add('hidden');
+                    if (step < 3) {
+                        btn.classList.remove('hidden');
+                        btn.onclick = () => onFinish();
+                    } else {
+                        onFinish();
+                    }
                 }
-            });
+            }, 1000);
         }
 
+        function updateStepIndicators() {
+            for (let i = 1; i <= 3; i++) {
+                const el = document.getElementById(`step${i}-indicator`);
+                if (i <= currentStep) el.classList.add('step-active');
+                else el.classList.remove('step-active');
+            }
+        }
+
+        // --- ADMIN LOGIC ---
         async function loadAdminLinks() {
-            const list = document.getElementById('links-list');
-            list.innerHTML = 'Đang tải...';
-            const snap = await db.collection('links').orderBy('createdAt', 'desc').get();
-            list.innerHTML = '';
-            snap.forEach(doc => {
-                const div = document.createElement('div');
-                div.className = "p-3 border-b flex justify-between items-center";
-                div.innerHTML = `<span class="truncate max-w-xs">${doc.data().target}</span><button onclick="deleteLink('${doc.id}')" class="text-red-500 font-bold">Xóa</button>`;
-                list.appendChild(div);
+            const tbody = document.getElementById('links-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10">Đang tải dữ liệu hệ thống...</td></tr>';
+            
+            const snapshot = await db.collection('links').orderBy('createdAt', 'desc').get();
+            tbody.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                tr.innerHTML = `
+                    <td class="py-4 pr-4 text-slate-400 truncate max-w-[200px]">${data.target}</td>
+                    <td class="py-4 font-mono text-blue-400 font-bold">${doc.id}</td>
+                    <td class="py-4 text-slate-400">${data.creator || 'Ẩn'}</td>
+                    <td class="py-4">
+                        <button onclick="deleteLink('${doc.id}')" class="text-red-500 hover:text-red-400 font-bold uppercase text-xs tracking-tighter">Xóa Link</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        window.deleteLink = async (id) => { if (confirm('Xóa?')) { await db.collection('links').doc(id).delete(); loadAdminLinks(); } };
+        window.deleteLink = async (id) => {
+            if (confirm('Xác nhận xóa link này khỏi hệ thống?')) {
+                await db.collection('links').doc(id).delete();
+                loadAdminLinks();
+            }
+        };
 
         function showSection(name) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
@@ -210,8 +383,9 @@
         document.getElementById('copyBtn').onclick = () => {
             document.getElementById('shortUrlOutput').select();
             document.execCommand('copy');
-            alert('Đã copy!');
+            alert('Đã copy link thành công!');
         };
+
     </script>
 </body>
 </html>
