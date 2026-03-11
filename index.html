@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <title>Link Task</title>
@@ -16,7 +17,7 @@ padding-top:60px;
 .box{
 background:#1e2b44;
 padding:30px;
-width:350px;
+width:380px;
 margin:auto;
 border-radius:10px;
 }
@@ -44,23 +45,36 @@ padding:10px;
 border-radius:6px;
 }
 
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #444;
+padding:8px;
+}
+
 </style>
 
 </head>
 
 <body>
 
+<!-- LOGIN -->
+
 <div class="box" id="loginBox">
 
 <h2>Login</h2>
 
-<input id="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
+<input id="email" placeholder="Email"><br> <input id="password" type="password" placeholder="Password"><br>
 
-<button onclick="login()">Login</button>
-<button onclick="register()">Register</button>
+<button onclick="login()">Login</button> <button onclick="register()">Register</button>
 
 </div>
+
+<!-- USER DASHBOARD -->
 
 <div class="box" id="taskBox" style="display:none;">
 
@@ -87,6 +101,31 @@ Upto 2 Steps
 <br>
 
 <button onclick="verifyTask()">Verify Task</button>
+
+</div>
+
+<!-- ADMIN PANEL -->
+
+<div class="box" id="adminBox" style="display:none;">
+
+<h2>Admin Panel</h2>
+
+<button onclick="logout()">Logout</button>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Email</th>
+<th>Earn</th>
+</tr>
+
+</thead>
+
+<tbody id="userTable"></tbody>
+
+</table>
 
 </div>
 
@@ -145,11 +184,24 @@ canVerify=true
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
 
-import { getFirestore,doc,setDoc,getDoc,updateDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+
+import {
+getFirestore,
+doc,
+setDoc,
+getDoc,
+updateDoc,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 const firebaseConfig={
 apiKey:"AIzaSyDWwTbMfKk9wXa5uaW6eIvEFfGLQ2ClnEg",
@@ -166,6 +218,8 @@ const db=getFirestore(app)
 
 let userId=null
 
+const ADMIN_EMAIL="youradmin@gmail.com"
+
 window.register=async function(){
 
 let email=document.getElementById("email").value
@@ -175,6 +229,7 @@ let user=await createUserWithEmailAndPassword(auth,email,password)
 
 await setDoc(doc(db,"users",user.user.uid),{
 
+email:email,
 earn:0
 
 })
@@ -227,11 +282,42 @@ canVerify=false
 
 }
 
+async function loadUsers(){
+
+let table=document.getElementById("userTable")
+
+table.innerHTML=""
+
+let query=await getDocs(collection(db,"users"))
+
+query.forEach((docu)=>{
+
+let d=docu.data()
+
+let row=
+
+"<tr><td>"+d.email+"</td><td>"+d.earn+"</td></tr>"
+
+table.innerHTML+=row
+
+})
+
+}
+
 onAuthStateChanged(auth,async(user)=>{
 
 if(user){
 
 userId=user.uid
+
+if(user.email===ADMIN_EMAIL){
+
+document.getElementById("loginBox").style.display="none"
+document.getElementById("adminBox").style.display="block"
+
+loadUsers()
+
+}else{
 
 document.getElementById("loginBox").style.display="none"
 document.getElementById("taskBox").style.display="block"
@@ -246,10 +332,13 @@ document.getElementById("count").innerText=snap.data().earn
 
 }
 
+}
+
 }else{
 
 document.getElementById("loginBox").style.display="block"
 document.getElementById("taskBox").style.display="none"
+document.getElementById("adminBox").style.display="none"
 
 }
 
