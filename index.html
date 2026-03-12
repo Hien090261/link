@@ -384,6 +384,32 @@
                                 <input type="number" id="withdrawAmount" placeholder="Min 2.00 $" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
                             </div>
                         </div>
+                        <div id="bankSelectContainer" class="space-y-2 hidden">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Chọn Ngân Hàng</label>
+                            <select id="bankName" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                                <option value="">-- Chọn ngân hàng --</option>
+                                <option value="Vietcombank">Vietcombank</option>
+                                <option value="Agribank">Agribank</option>
+                                <option value="BIDV">BIDV</option>
+                                <option value="VietinBank">VietinBank</option>
+                                <option value="Techcombank">Techcombank</option>
+                                <option value="MB Bank">MB Bank</option>
+                                <option value="ACB">ACB</option>
+                                <option value="VPBank">VPBank</option>
+                                <option value="Sacombank">Sacombank</option>
+                                <option value="TPBank">TPBank</option>
+                                <option value="VIB">VIB</option>
+                                <option value="HDBank">HDBank</option>
+                                <option value="LienVietPostBank">LienVietPostBank</option>
+                                <option value="SHB">SHB</option>
+                                <option value="MSB">MSB</option>
+                                <option value="SeABank">SeABank</option>
+                                <option value="OCB">OCB</option>
+                                <option value="Eximbank">Eximbank</option>
+                                <option value="ABBank">ABBank</option>
+                                <option value="PVcomBank">PVcomBank</option>
+                            </select>
+                        </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Thông Tin Tài Khoản (SĐT / STK / Tên)</label>
                             <input type="text" id="withdrawAccount" placeholder="Ví dụ: 0987654321 - NGUYEN VAN A" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
@@ -989,7 +1015,7 @@
                      <td class="py-4 px-4 text-xs font-bold text-white">${data.email}</td>
                      <td class="py-4 px-4 font-black text-green-400">${data.amount.toFixed(2)} $</td>
                      <td class="py-4 px-4">
-                         <div class="text-[10px] text-slate-500 font-bold uppercase">${data.method}</div>
+                         <div class="text-[10px] text-slate-500 font-bold uppercase">${data.method}${data.bankName ? ` (${data.bankName})` : ''}</div>
                          <div class="text-sm text-slate-300 font-mono">${data.account}</div>
                      </td>
                      <td class="py-4 px-4 ${statusClass} font-bold text-xs">${data.status}</td>
@@ -1562,27 +1588,44 @@
                     const tr = document.createElement('tr');
                     tr.className = "border-b border-slate-800";
                     const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
-                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold text-green-400">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400">${data.method}</td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
+                    const methodInfo = data.bankName ? `${data.method} (${data.bankName})` : data.method;
+                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold text-green-400">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400">${methodInfo}</td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
                     tbody.appendChild(tr);
                 });
             }
         }
 
+        // Logic ẩn/hiện chọn bank
+        document.getElementById('withdrawMethod').onchange = (e) => {
+            const container = document.getElementById('bankSelectContainer');
+            if (e.target.value === 'Bank') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        };
+
         document.getElementById('withdrawSubmitBtn').onclick = async () => {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             const account = document.getElementById('withdrawAccount').value;
+            const bankName = document.getElementById('bankName').value;
 
             if (!amount || amount < 2) return alert('Số tiền rút tối thiểu là 2.00 $');
             if (!account) return alert('Vui lòng nhập thông tin tài khoản nhận tiền!');
+            
+            if (method === 'Bank' && !bankName) {
+                return alert('Vui lòng chọn ngân hàng!');
+            }
 
             const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
             const balance = userDoc.data()?.balance || 0;
 
             if (amount > balance) return alert('Số dư không đủ!');
 
-            if (confirm(`Xác nhận rút ${amount}$ về ${method}?`)) {
-                await db.collection('withdrawals').add({
+            const methodText = method === 'Bank' ? `Ngân hàng ${bankName}` : method;
+            if (confirm(`Xác nhận rút ${amount}$ về ${methodText}?`)) {
+                const withdrawData = {
                     userId: auth.currentUser.uid,
                     email: auth.currentUser.email,
                     amount: amount,
@@ -1590,13 +1633,21 @@
                     account: account,
                     status: 'Đang xử lý',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+
+                if (method === 'Bank') {
+                    withdrawData.bankName = bankName;
+                }
+
+                await db.collection('withdrawals').add(withdrawData);
                 await db.collection('users').doc(auth.currentUser.uid).update({
                     balance: firebase.firestore.FieldValue.increment(-amount)
                 });
                 alert('Yêu cầu đã được gửi! Vui lòng chờ xử lý.');
                 document.getElementById('withdrawAmount').value = '';
                 document.getElementById('withdrawAccount').value = '';
+                document.getElementById('bankName').value = '';
+                document.getElementById('bankSelectContainer').classList.add('hidden');
                 loadWithdrawData();
             }
         };
