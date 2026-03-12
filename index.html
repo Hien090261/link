@@ -1168,14 +1168,12 @@
         async function loadDashboard() {
             if (!auth.currentUser) return;
             
-            // Cập nhật thống kê Dashboard (Hôm nay, Tổng, Số dư)
             const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
             const userData = userDoc.data();
             if (userData) {
                 document.getElementById('stat-earnings').textContent = (userData.balance || 0).toFixed(2) + ' $';
                 document.getElementById('stat-total-tasks').textContent = userData.totalClicks || 0;
                 
-                // Lấy số nhiệm vụ hoàn thành trong hôm nay
                 const today = new Date();
                 today.setHours(0,0,0,0);
                 const todaySnap = await db.collection('mission_history')
@@ -1184,110 +1182,97 @@
                     .get();
                 document.getElementById('stat-today-tasks').textContent = todaySnap.size;
 
-                // Vẽ biểu đồ 30 ngày
                 updatePerformanceChart(auth.currentUser.uid);
             }
         }
 
         async function updatePerformanceChart(userId) {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            const labels = [];
-            const dataValues = [];
-
-            // Lấy dữ liệu 30 ngày qua
+            const canvas = document.getElementById('performanceChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
             const now = new Date();
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date(now);
-                date.setDate(date.getDate() - i);
-                
-                // Format YYYY-MM-DD
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                labels.push(`${year}-${month}-${day}`);
+            const thirtyDaysAgo = new Date(now);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            thirtyDaysAgo.setHours(0,0,0,0);
 
-                const startOfDay = new Date(date);
-                startOfDay.setHours(0,0,0,0);
-                const endOfDay = new Date(date);
-                endOfDay.setHours(23,59,59,999);
-
-                const snap = await db.collection('mission_history')
+            try {
+                // Fetch all history in one go
+                const historySnap = await db.collection('mission_history')
                     .where('userId', '==', userId)
-                    .where('createdAt', '>=', startOfDay)
-                    .where('createdAt', '<=', endOfDay)
+                    .where('createdAt', '>=', thirtyDaysAgo)
                     .get();
-                dataValues.push(snap.size);
-            }
 
-            if (performanceChart) performanceChart.destroy();
+                const historyMap = {};
+                historySnap.forEach(doc => {
+                    const d = doc.data().createdAt.toDate();
+                    const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    historyMap[dStr] = (historyMap[dStr] || 0) + 1;
+                });
 
-            const isDark = !document.documentElement.classList.contains('light-theme');
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-            const lineColor = '#3b82f6';
+                const labels = [];
+                const dataValues = [];
+                for (let i = 29; i >= 0; i--) {
+                    const d = new Date(now);
+                    d.setDate(d.getDate() - i);
+                    const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    labels.push(dStr);
+                    dataValues.push(historyMap[dStr] || 0);
+                }
 
-            performanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Nhiệm vụ',
-                        data: dataValues,
-                        borderColor: lineColor,
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        tension: 0, // Đường thẳng tắp giống Minuc
-                        pointBackgroundColor: lineColor,
-                        pointRadius: 3,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index',
+                if (performanceChart) performanceChart.destroy();
+
+                const isDark = !document.documentElement.classList.contains('light-theme');
+                const textColor = isDark ? '#94a3b8' : '#64748b';
+                const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+                performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Nhiệm vụ',
+                            data: dataValues,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                            borderWidth: 2,
+                            tension: 0,
+                            pointBackgroundColor: '#3b82f6',
+                            pointRadius: 3,
+                            fill: true
+                        }]
                     },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                            titleColor: isDark ? '#ffffff' : '#1e293b',
-                            bodyColor: isDark ? '#ffffff' : '#1e293b',
-                            borderColor: lineColor,
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    return ` Nhiệm vụ: ${context.parsed.y.toFixed(1)}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: gridColor },
-                            ticks: { 
-                                color: textColor, 
-                                font: { size: 10 },
-                                stepSize: 0.2
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                titleColor: isDark ? '#ffffff' : '#1e293b',
+                                bodyColor: isDark ? '#ffffff' : '#1e293b',
+                                borderColor: '#3b82f6',
+                                borderWidth: 1
                             }
                         },
-                        x: {
-                            grid: { color: gridColor },
-                            ticks: { 
-                                color: textColor, 
-                                font: { size: 10 },
-                                maxRotation: 45,
-                                minRotation: 45
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: 5,
+                                grid: { color: gridColor },
+                                ticks: { color: textColor, font: { size: 10 } }
+                            },
+                            x: {
+                                grid: { color: gridColor },
+                                ticks: { color: textColor, font: { size: 10 }, maxRotation: 45, minRotation: 45 }
                             }
                         }
                     }
-                }
-            });
+                });
+            } catch (e) {
+                console.error("Chart Error:", e);
+            }
         }
 
         async function loadMissions() {
@@ -1343,74 +1328,6 @@
                     </div>
                 `;
                 grid.appendChild(card);
-            });
-         }
-
-         async function updatePerformanceChart(userId) {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            const labels = [];
-            const dataValues = [];
-
-            // Lấy dữ liệu 7 ngày qua
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                const dayStr = date.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric' });
-                labels.push(dayStr);
-
-                const startOfDay = new Date(date);
-                startOfDay.setHours(0,0,0,0);
-                const endOfDay = new Date(date);
-                endOfDay.setHours(23,59,59,999);
-
-                const snap = await db.collection('mission_history')
-                    .where('userId', '==', userId)
-                    .where('createdAt', '>=', startOfDay)
-                    .where('createdAt', '<=', endOfDay)
-                    .get();
-                dataValues.push(snap.size);
-            }
-
-            if (performanceChart) performanceChart.destroy();
-
-            const isDark = !document.documentElement.classList.contains('light-theme');
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-            const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-            performanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Số nhiệm vụ hoàn thành',
-                        data: dataValues,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#3b82f6',
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: gridColor },
-                            ticks: { color: textColor, font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: textColor, font: { size: 10 } }
-                        }
-                    }
-                }
             });
          }
 
