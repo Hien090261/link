@@ -14,7 +14,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .sidebar { width: 300px; background: #1a2236; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 50; }
-        .main-content { margin-left: 300px; min-height: 100vh; padding: 2rem; }
+        .main-content { margin-left: 300px; min-height: 100vh; padding: 2rem; transition: margin-left 0.3s ease; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 0.75rem 1.5rem; color: #94a3b8; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; cursor: pointer; border-left: 3px solid transparent; }
         .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
         .nav-item:hover { background: rgba(59, 130, 246, 0.05); color: #3b82f6; }
@@ -64,10 +64,13 @@
         .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
         .hidden { display: none; }
         @media (max-width: 1024px) { 
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px !important; }
             .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; }
+            .main-content { margin-left: 0 !important; padding: 1rem; }
             .mobile-menu-btn { display: block; }
+            .glass-card { padding: 1.25rem !important; }
+            h1 { font-size: 1.5rem !important; }
+            .sidebar-header { padding: 1rem; }
         }
         @media (min-width: 1025px) { .mobile-menu-btn { display: none; } }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -125,6 +128,11 @@
             </div>
 
             <div class="sidebar-section-title">Hệ Thống Link</div>
+            
+            <div class="nav-item" onclick="showSection('missions')">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Missions (Làm Nhiệm Vụ)</span>
+            </div>
             
             <div class="nav-item" onclick="showSection('home')">
                 <i class="fa-solid fa-link"></i>
@@ -235,19 +243,32 @@
                 </div>
             </div>
 
-            <!-- Performance Chart -->
-            <div class="glass-card p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black text-white">Thống kê hiệu suất (7 ngày qua)</h3>
-                    <div class="text-[10px] text-pink-500 font-bold italic">Check vi phạm tự động!</div>
+            <!-- Performance Chart Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black text-white">Thống kê 24 giờ qua</h3>
+                        <div class="text-[10px] text-blue-500 font-bold italic">Check vi phạm tự động!</div>
+                    </div>
+                    <div class="h-[300px]">
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
                 </div>
-                <div class="h-[300px]">
-                    <canvas id="performanceChart"></canvas>
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black text-white">Hiệu suất 7 ngày qua</h3>
+                        <div class="text-[10px] text-pink-500 font-bold italic">Tăng trưởng thu nhập</div>
+                    </div>
+                    <div class="h-[300px]">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Task Wall Header -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-4">
+        <!-- SECTION: MISSIONS -->
+        <section id="missions-section" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h2 class="text-2xl font-black text-white flex items-center gap-3">
                     <i class="fa-solid fa-list-check text-blue-500"></i> Nhiệm vụ vượt link
                 </h2>
@@ -259,7 +280,7 @@
             </div>
 
             <!-- Mission Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="mission-grid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="mission-grid">
                 <!-- Mission cards will be loaded here -->
                 <div class="col-span-full py-20 text-center text-slate-500 italic">Đang tải nhiệm vụ...</div>
             </div>
@@ -666,6 +687,7 @@
         let currentStep = 1;
         const EARN_PER_CLICK = 0.05;
         let performanceChart = null;
+        let hourlyChart = null;
 
         const authModal = document.getElementById('auth-modal');
         const showLoginBtn = document.getElementById('showLoginBtn');
@@ -826,9 +848,9 @@
                     const balEls = document.querySelectorAll('#stat-earnings, #withdraw-balance');
                     balEls.forEach(el => { if (el) el.textContent = bal; });
                     
-                    // Nếu đang ở Dashboard thì load lại missions để cập nhật chart/stats
+                    // Nếu đang ở Dashboard thì load lại dữ liệu thống kê
                     if (!document.getElementById('home-section').classList.contains('hidden')) {
-                        loadMissions();
+                        loadDashboard();
                     }
                 }
             } else {
@@ -1149,38 +1171,103 @@
             }
          };
 
-         async function loadMissions() {
+        async function loadDashboard() {
+            if (!auth.currentUser) return;
+            
+            // Cập nhật thống kê Dashboard (Hôm nay, Tổng, Số dư)
+            const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
+            const userData = userDoc.data();
+            if (userData) {
+                document.getElementById('stat-earnings').textContent = (userData.balance || 0).toFixed(2) + ' $';
+                document.getElementById('stat-total-tasks').textContent = userData.totalClicks || 0;
+                
+                // Lấy số nhiệm vụ hoàn thành trong hôm nay
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const todaySnap = await db.collection('mission_history')
+                    .where('userId', '==', auth.currentUser.uid)
+                    .where('createdAt', '>=', today)
+                    .get();
+                document.getElementById('stat-today-tasks').textContent = todaySnap.size;
+
+                // Vẽ các biểu đồ
+                updateHourlyChart(auth.currentUser.uid);
+                updatePerformanceChart(auth.currentUser.uid);
+            }
+        }
+
+        async function updateHourlyChart(userId) {
+            const ctx = document.getElementById('hourlyChart').getContext('2d');
+            const labels = [];
+            const dataValues = [];
+
+            // Lấy dữ liệu 24 giờ qua (chia theo block 2h)
+            const now = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const hourDate = new Date(now.getTime() - (i * 2 * 60 * 60 * 1000));
+                labels.push(`${hourDate.getHours()}h`);
+
+                const startOfBlock = new Date(hourDate);
+                startOfBlock.setMinutes(0, 0, 0);
+                const endOfBlock = new Date(startOfBlock.getTime() + (2 * 60 * 60 * 1000));
+
+                const snap = await db.collection('mission_history')
+                    .where('userId', '==', userId)
+                    .where('createdAt', '>=', startOfBlock)
+                    .where('createdAt', '<', endOfBlock)
+                    .get();
+                dataValues.push(snap.size);
+            }
+
+            if (hourlyChart) hourlyChart.destroy();
+
+            const isDark = !document.documentElement.classList.contains('light-theme');
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+            hourlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nhiệm vụ',
+                        data: dataValues,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        async function loadMissions() {
             const grid = document.getElementById('mission-grid');
             if (!grid) return;
             grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 italic">Đang tải nhiệm vụ...</div>';
             
-            // Cập nhật thống kê Dashboard (Hôm nay, Tổng, Số dư)
-            if (auth.currentUser) {
-                const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
-                const userData = userDoc.data();
-                if (userData) {
-                    document.getElementById('stat-earnings').textContent = (userData.balance || 0).toFixed(2) + ' $';
-                    document.getElementById('stat-total-tasks').textContent = userData.totalClicks || 0;
-                    
-                    // Lấy số nhiệm vụ hoàn thành trong hôm nay
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const todaySnap = await db.collection('mission_history')
-                        .where('userId', '==', auth.currentUser.uid)
-                        .where('createdAt', '>=', today)
-                        .get();
-                    document.getElementById('stat-today-tasks').textContent = todaySnap.size;
-                    document.getElementById('today-tasks-count').textContent = `${todaySnap.size}/∞`;
-
-                    // Vẽ biểu đồ
-                    updatePerformanceChart(auth.currentUser.uid);
-                }
-            }
-
             const snap = await db.collection('missions').orderBy('createdAt', 'desc').get();
             if (snap.empty) {
                 grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 italic">Hiện tại chưa có nhiệm vụ nào.</div>';
                 return;
+            }
+
+            // Lấy số nhiệm vụ hôm nay cho badge
+            if (auth.currentUser) {
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const todaySnap = await db.collection('mission_history')
+                    .where('userId', '==', auth.currentUser.uid)
+                    .where('createdAt', '>=', today)
+                    .get();
+                document.getElementById('today-tasks-count').textContent = `${todaySnap.size}/∞`;
             }
 
             grid.innerHTML = '';
@@ -1356,6 +1443,7 @@
             // Update page titles
             const titles = {
                 'home': 'Bảng Điều Khiển',
+                'missions': 'Làm Nhiệm Vụ',
                 'affiliate': 'Giới Thiệu Bạn Bè',
                 'withdraw': 'Rút Tiền Hệ Thống',
                 'othersites': 'Kiếm Thêm Thu Nhập',
@@ -1368,7 +1456,8 @@
             document.getElementById('page-subtitle').textContent = name === 'home' ? 'Chào mừng trở lại!' : 'Khu vực thành viên';
 
             if (name === 'admin') loadAdminLinks();
-            if (name === 'home') loadMissions();
+            if (name === 'home') loadDashboard();
+            if (name === 'missions') loadMissions();
             if (name === 'affiliate') loadAffiliateData();
             if (name === 'withdraw') loadWithdrawData();
             if (name === 'contest') loadContestData();
