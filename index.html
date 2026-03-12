@@ -62,16 +62,27 @@
         .mission-card:hover { border-color: #3b82f6; transform: translateY(-5px); background: rgba(30, 41, 59, 0.9); }
         
         /* Light Theme Styles (Trắng-Xanh) */
-         .light-theme { background-color: #f8fafc; color: #1e293b; }
-         .light-theme .glass-card, .light-theme .mission-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-         .light-theme .text-white { color: #1e293b !important; }
-         .light-theme .text-slate-400, .light-theme .text-slate-500 { color: #64748b !important; }
-         .light-theme .bg-slate-950, .light-theme .bg-slate-900, .light-theme .bg-slate-800 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+         .light-theme, .light-theme body { background-color: #f1f5f9 !important; color: #1e293b; }
+         .light-theme .sidebar { background: #ffffff; border-right: 1px solid #e2e8f0; }
+         .light-theme .nav-item { color: #64748b; }
+         .light-theme .nav-item:hover { background: #eff6ff; color: #3b82f6; }
+         .light-theme .sidebar-time-box { background: #f8fafc; border-color: #e2e8f0; }
+         .light-theme .sidebar-time-box span { color: #64748b; }
+         .light-theme .sidebar-title { color: #0f172a; }
+         .light-theme .sidebar-section-title { color: #94a3b8; }
+         .light-theme .footer-action-btn { background: #f8fafc; border-color: #e2e8f0; }
+         
+         .light-theme .glass-card, .light-theme .mission-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important; }
+         .light-theme .text-white { color: #0f172a !important; }
+         .light-theme .text-slate-400 { color: #64748b !important; }
+         .light-theme .text-slate-500 { color: #475569 !important; }
+         .light-theme .bg-slate-950, .light-theme .bg-slate-900, .light-theme .bg-slate-800, .light-theme .bg-slate-900\/30, .light-theme .bg-slate-900\/50, .light-theme .bg-slate-900\/60 { background-color: #f8fafc !important; border-color: #e2e8f0 !important; }
+         .light-theme input, .light-theme select { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; color: #0f172a !important; }
+         .light-theme input::placeholder { color: #94a3b8 !important; }
          .light-theme .sidebar-logo { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-         .light-theme .sidebar-time { color: #64748b; }
-         .light-theme input, .light-theme select { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
          .light-theme .mission-card { border-style: solid; }
-         .light-theme #settings-modal .glass-card, .light-theme #auth-modal .glass-card, .light-theme #mission-modal .glass-card { background: #ffffff; }
+         .light-theme #settings-modal .glass-card, .light-theme #auth-modal .glass-card, .light-theme #mission-modal .glass-card { background: #ffffff !important; }
+         .light-theme .sidebar-section-title::after { background: #e2e8f0 !important; }
         
         .btn-execute { background: #22c55e; color: white; padding: 0.5rem 1.5rem; border-radius: 10px; font-weight: 700; transition: all 0.2s; }
         .btn-execute:hover { background: #16a34a; transform: scale(1.05); }
@@ -424,7 +435,7 @@
             <div class="glass-card p-10 text-center space-y-6">
                 <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 text-3xl mx-auto"><i class="fa-solid fa-users"></i></div>
                 <h2 class="text-3xl font-black text-white">Chương Trình Giới Thiệu</h2>
-                <p class="text-slate-400 max-w-lg mx-auto">Nhận ngay <strong>10% hoa hồng</strong> trọn đời từ thu nhập của những người bạn giới thiệu tham gia hệ thống.</p>
+                <p class="text-slate-400 max-w-lg mx-auto">Nhận ngay <strong>5% hoa hồng</strong> trọn đời từ thu nhập của những người bạn giới thiệu tham gia hệ thống.</p>
                 
                 <div class="max-w-2xl mx-auto p-6 bg-slate-900/50 rounded-2xl border border-slate-700 space-y-4">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest text-left">Link Giới Thiệu Của Bạn</p>
@@ -460,11 +471,12 @@
                             <tr>
                                 <th class="pb-6 px-4">Email</th>
                                 <th class="pb-6 px-4">Ngày Tham Gia</th>
-                                <th class="pb-6 px-4">Hoa Hồng</th>
+                                <th class="pb-6 px-4">Tổng Nhiệm Vụ</th>
+                                <th class="pb-6 px-4">Hoa Hồng (5%)</th>
                             </tr>
                         </thead>
                         <tbody id="ref-table-body" class="text-sm">
-                            <tr><td colspan="3" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>
+                            <tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1715,21 +1727,55 @@
             const refLink = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`;
             document.getElementById('refLinkOutput').value = refLink;
 
-            const snap = await db.collection('users').where('referredBy', '==', auth.currentUser.uid).get();
-            document.getElementById('stat-total-ref').textContent = snap.size;
-            
             const tbody = document.getElementById('ref-table-body');
-            if (snap.empty) {
-                tbody.innerHTML = '<tr><td colspan="3" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>';
-            } else {
-                tbody.innerHTML = '';
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-800";
-                    tr.innerHTML = `<td class="py-4 px-4">${data.email || 'Ẩn danh'}</td><td class="py-4 px-4 text-slate-400">${data.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString() : 'N/A'}</td><td class="py-4 px-4 text-green-400 font-bold">0.00 $</td>`;
-                    tbody.appendChild(tr);
-                });
+            tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500 italic">Đang tải danh sách...</td></tr>';
+
+            try {
+                const snap = await db.collection('users').where('referredBy', '==', auth.currentUser.uid).get();
+                document.getElementById('stat-total-ref').textContent = snap.size;
+                
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có người giới thiệu nào.</td></tr>';
+                    document.getElementById('stat-ref-earnings').textContent = '0.00 $';
+                } else {
+                    let totalCommission = 0;
+                    tbody.innerHTML = '';
+                    
+                    // Lấy thông tin chi tiết từng người được mời
+                    for (const userDoc of snap.docs) {
+                        const userData = userDoc.data();
+                        const userId = userDoc.id;
+                        
+                        // Tính tổng thu nhập của người này từ mission_history
+                        const historySnap = await db.collection('mission_history')
+                            .where('userId', '==', userId)
+                            .get();
+                        
+                        let userTotalEarned = 0;
+                        historySnap.forEach(hDoc => {
+                            userTotalEarned += (hDoc.data().reward || 0);
+                        });
+
+                        const commission = userTotalEarned * 0.05;
+                        totalCommission += commission;
+
+                        const tr = document.createElement('tr');
+                        tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                        const joinDate = userData.createdAt ? new Date(userData.createdAt.seconds*1000).toLocaleDateString() : 'N/A';
+                        
+                        tr.innerHTML = `
+                            <td class="py-4 px-4 font-bold text-white">${userData.email || 'Ẩn danh'}</td>
+                            <td class="py-4 px-4 text-slate-400 text-xs">${joinDate}</td>
+                            <td class="py-4 px-4 text-blue-400 font-bold">${historySnap.size}</td>
+                            <td class="py-4 px-4 text-green-400 font-black">${commission.toFixed(2)} $</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                    document.getElementById('stat-ref-earnings').textContent = totalCommission.toFixed(2) + ' $';
+                }
+            } catch (e) {
+                console.error("Lỗi tải dữ liệu Affiliate:", e);
+                tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
             }
         }
 
