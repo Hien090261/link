@@ -1225,31 +1225,41 @@
              const canvas = document.getElementById('performanceChart');
              if (!canvas) return;
              
-             // Kiểm tra thư viện Chart.js đã tải chưa
              if (typeof Chart === 'undefined') {
-                 console.warn("Chart.js chưa tải xong...");
                  setTimeout(() => updatePerformanceChart(userId), 1000);
                  return;
              }
 
              const ctx = canvas.getContext('2d');
-             
              const now = new Date();
              const thirtyDaysAgo = new Date(now);
              thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
              thirtyDaysAgo.setHours(0,0,0,0);
 
              try {
-                 const historySnap = await db.collection('mission_history')
-                     .where('userId', '==', userId)
-                     .where('createdAt', '>=', thirtyDaysAgo)
-                     .get();
+                 let historySnap;
+                 try {
+                     historySnap = await db.collection('mission_history')
+                         .where('userId', '==', userId)
+                         .where('createdAt', '>=', thirtyDaysAgo)
+                         .orderBy('createdAt', 'desc')
+                         .get();
+                 } catch (e) {
+                     console.warn("Truy vấn biểu đồ có sắp xếp thất bại, thử lấy không sắp xếp:", e);
+                     historySnap = await db.collection('mission_history')
+                         .where('userId', '==', userId)
+                         .where('createdAt', '>=', thirtyDaysAgo)
+                         .get();
+                 }
 
                  const historyMap = {};
                  historySnap.forEach(doc => {
-                     const d = doc.data().createdAt.toDate();
-                     const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                     historyMap[dStr] = (historyMap[dStr] || 0) + 1;
+                     const data = doc.data();
+                     if (data.createdAt) {
+                         const d = data.createdAt.toDate();
+                         const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                         historyMap[dStr] = (historyMap[dStr] || 0) + 1;
+                     }
                  });
 
                  const labels = [];
@@ -1262,11 +1272,11 @@
                      dataValues.push(historyMap[dStr] || 0);
                  }
 
-                 if (performanceChart) performanceChart.destroy();
-                 
                  const loadingEl = document.getElementById('chart-loading');
                  if (loadingEl) loadingEl.style.display = 'none';
 
+                 if (performanceChart) performanceChart.destroy();
+                 
                  const isDark = !document.documentElement.classList.contains('light-theme');
                  const textColor = isDark ? '#94a3b8' : '#64748b';
                  const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
@@ -1281,7 +1291,7 @@
                              borderColor: '#3b82f6',
                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
                              borderWidth: 3,
-                             tension: 0,
+                             tension: 0.3,
                              pointBackgroundColor: '#3b82f6',
                              pointRadius: 4,
                              pointHoverRadius: 8,
@@ -1291,9 +1301,6 @@
                      options: {
                          responsive: true,
                          maintainAspectRatio: false,
-                         layout: {
-                             padding: { left: 10, right: 10, top: 20, bottom: 10 }
-                         },
                          interaction: { intersect: false, mode: 'index' },
                          plugins: {
                              legend: { display: false },
@@ -1303,47 +1310,25 @@
                                  titleColor: isDark ? '#ffffff' : '#1e293b',
                                  bodyColor: isDark ? '#ffffff' : '#1e293b',
                                  borderColor: '#3b82f6',
-                                 borderWidth: 1,
-                                 padding: 12,
-                                 displayColors: false,
-                                 callbacks: {
-                                     label: function(context) { return ` Nhiệm vụ: ${context.parsed.y}`; }
-                                 }
+                                 borderWidth: 1
                              }
                          },
                          scales: {
                              y: {
                                  beginAtZero: true,
-                                 suggestedMax: 10,
-                                 grid: { 
-                                     color: gridColor,
-                                     drawBorder: true,
-                                     borderColor: gridColor
-                                 },
-                                 ticks: { 
-                                     color: textColor, 
-                                     font: { size: 11, weight: 'bold' },
-                                     stepSize: 2
-                                 }
+                                 suggestedMax: 5,
+                                 grid: { color: gridColor },
+                                 ticks: { color: textColor, stepSize: 1 }
                              },
                              x: {
-                                 grid: { 
-                                     color: gridColor,
-                                     drawBorder: true,
-                                     borderColor: gridColor
-                                 },
-                                 ticks: { 
-                                     color: textColor, 
-                                     font: { size: 10 },
-                                     maxRotation: 45, 
-                                     minRotation: 45 
-                                 }
+                                 grid: { display: false },
+                                 ticks: { color: textColor, maxRotation: 45, minRotation: 45, font: { size: 10 } }
                              }
                          }
                      }
                  });
              } catch (e) {
-                 console.error("Chart Error:", e);
+                 console.error("Lỗi biểu đồ:", e);
              }
          }
 
