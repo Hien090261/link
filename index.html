@@ -811,8 +811,14 @@
                 <div class="space-y-5">
                     <input type="email" id="emailInput" placeholder="Email của bạn" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl focus:border-blue-500 outline-none text-white">
                     <div class="relative">
-                        <input type="password" id="passwordInput" placeholder="Mật khẩu" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl focus:border-blue-500 outline-none text-white">
-                        <button onclick="forgotPasswordLogin()" class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400 hover:underline">Quên?</button>
+                        <input type="password" id="passwordInput" placeholder="Mật khẩu" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl focus:border-blue-500 outline-none text-white pr-24">
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                            <button onclick="togglePasswordVisibility()" type="button" class="text-slate-500 hover:text-blue-400 transition p-1">
+                                <i id="passwordIcon" class="fa-solid fa-eye"></i>
+                            </button>
+                            <div class="w-[1px] h-4 bg-slate-700"></div>
+                            <button onclick="forgotPasswordLogin()" class="text-[10px] font-bold text-blue-400 hover:underline">Quên?</button>
+                        </div>
                     </div>
                     <button id="authSubmitBtn" class="w-full accent-gradient font-black py-4 rounded-2xl mt-4 text-white shadow-xl shadow-blue-500/20">TIẾP TỤC</button>
                     <p class="text-center text-sm text-slate-400">
@@ -934,6 +940,18 @@
 
         function toggleAuthModal(show) { authModal.classList.toggle('hidden', !show); }
         
+        window.togglePasswordVisibility = () => {
+            const pwdInput = document.getElementById('passwordInput');
+            const pwdIcon = document.getElementById('passwordIcon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                pwdIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                pwdInput.type = 'password';
+                pwdIcon.className = 'fa-solid fa-eye';
+            }
+        };
+
         // Live Time Update
         function updateSidebarTime() {
             const now = new Date();
