@@ -434,11 +434,12 @@
                                 <th class="pb-6 px-4">Ngày Yêu Cầu</th>
                                 <th class="pb-6 px-4">Số Tiền</th>
                                 <th class="pb-6 px-4">Phương Thức</th>
-                                <th class="pb-6 px-4">Trạng Thái</th>
+                                <th class="pb-6 px-4">Thông Tin</th>
+                                <th class="pb-6 px-4 text-center">Trạng Thái</th>
                             </tr>
                         </thead>
                         <tbody id="withdraw-table-body" class="text-sm">
-                            <tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>
+                            <tr><td colspan="5" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1587,17 +1588,26 @@
             const snap = await db.collection('withdrawals').where('userId', '==', auth.currentUser.uid).orderBy('createdAt', 'desc').get();
             const tbody = document.getElementById('withdraw-table-body');
             if (snap.empty) {
-                tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>';
             } else {
                 tbody.innerHTML = '';
                 snap.forEach(doc => {
                     const data = doc.data();
                     const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-800";
+                    tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
                     const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
-                    const methodInfo = data.bankName ? `${data.method} (${data.bankName})` : data.method;
-                    const accountInfo = `${data.account} - ${data.accountName || ''}`;
-                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold text-green-400">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400 text-xs">${methodInfo}<br><span class="text-[10px] opacity-60">${accountInfo}</span></td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
+                    const methodInfo = data.bankName ? `Ngân hàng (${data.bankName})` : data.method;
+                    const accountInfo = `<div class="font-bold text-white text-xs">${data.account}</div><div class="text-[9px] text-blue-400 uppercase font-bold">${data.accountName || ''}</div>`;
+                    
+                    tr.innerHTML = `
+                        <td class="py-4 px-4 text-xs text-slate-400">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td>
+                        <td class="py-4 px-4 font-black text-green-400">${data.amount.toFixed(2)} $</td>
+                        <td class="py-4 px-4">
+                            <span class="text-[10px] font-bold text-slate-300 uppercase">${methodInfo}</span>
+                        </td>
+                        <td class="py-4 px-4">${accountInfo}</td>
+                        <td class="py-4 px-4 text-center ${statusClass} font-black text-xs uppercase tracking-widest">${data.status}</td>
+                    `;
                     tbody.appendChild(tr);
                 });
             }
