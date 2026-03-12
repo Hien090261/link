@@ -12,48 +12,63 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .sidebar { width: 300px; background: #1a2236; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 50; }
-        .main-content { margin-left: 300px; min-height: 100vh; padding: 2rem; transition: margin-left 0.3s ease; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 0.75rem 1.5rem; color: #94a3b8; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; cursor: pointer; border-left: 3px solid transparent; }
-        .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
-        .nav-item:hover { background: rgba(59, 130, 246, 0.05); color: #3b82f6; }
-        .nav-item.active { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-left-color: #3b82f6; font-weight: 600; }
-        .sidebar-header { padding: 1.5rem; display: flex; align-items: center; gap: 12px; position: relative; }
-        .sidebar-logo { width: 45px; height: 45px; background: #00a3ff; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; line-height: 1; box-shadow: 0 0 15px rgba(0, 163, 255, 0.4); }
-        .sidebar-logo span:first-child { font-size: 1.2rem; }
-        .sidebar-logo span:last-child { font-size: 0.5rem; opacity: 0.8; }
-        .sidebar-title { font-size: 0.9rem; font-weight: 800; color: #e2e8f0; line-height: 1.2; }
-        .sidebar-title span { font-size: 0.65rem; color: #00a3ff; display: block; font-weight: 600; }
-        .sidebar-section-title { padding: 1.5rem 1.5rem 0.75rem; font-size: 0.75rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 10px; }
-        .sidebar-section-title::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
-        .sidebar-time { padding: 0.5rem 1.5rem 1.5rem; font-size: 0.85rem; color: #64748b; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-        .sidebar-footer { margin-top: auto; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; }
-        .user-profile-btn { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #d946ef); display: flex; align-items: center; justify-content: center; border: 2px solid #334155; position: relative; }
-        .user-profile-btn::after { content: ""; position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border: 2px solid #1a2236; border-radius: 50%; }
-        .settings-btn { color: #64748b; font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
-        .settings-btn:hover { color: #94a3b8; }
-        .collapse-btn { position: absolute; right: -15px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; background: #1a2236; border: 1px solid rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; z-index: 60; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b1120; color: #f8fafc; }
+        .sidebar { width: 280px; background: #0f172a; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid rgba(255,255,255,0.03); z-index: 50; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .main-content { margin-left: 280px; min-height: 100vh; padding: 2.5rem; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 0.8rem 1.2rem; margin: 0.4rem 1rem; border-radius: 16px; color: #64748b; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent; }
+        .nav-item i { width: 20px; text-align: center; font-size: 1rem; color: #475569; transition: all 0.3s ease; }
+        .nav-item:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.05); }
+        .nav-item:hover i { color: #3b82f6; transform: translateX(3px); }
+        
+        .nav-item.active { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4); border: none; }
+        .nav-item.active i { color: #ffffff; }
+
+        .sidebar-header { padding: 2.5rem 1.5rem; display: flex; align-items: center; gap: 15px; position: relative; }
+        .sidebar-logo-container { position: relative; width: 42px; height: 42px; }
+        .sidebar-logo { width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 12px; display: flex; items-center justify-content: center; color: white; font-weight: 800; font-size: 1.1rem; box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3); transform: rotate(-5deg); transition: all 0.3s ease; }
+        .sidebar-header:hover .sidebar-logo { transform: rotate(0deg) scale(1.1); }
+        
+        .sidebar-title { font-size: 1rem; font-weight: 800; color: #f8fafc; line-height: 1.1; letter-spacing: -0.02em; }
+        .sidebar-title span { font-size: 0.6rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; display: block; margin-top: 2px; }
+
+        .sidebar-section-title { padding: 1.5rem 1.5rem 0.5rem; font-size: 0.65rem; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px; }
+        .sidebar-section-title::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.03); }
+        
+        .sidebar-time-box { margin: 0.5rem 1rem 1.5rem; padding: 0.8rem 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 14px; border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 10px; }
+        .sidebar-time-box i { color: #3b82f6; font-size: 0.8rem; }
+        .sidebar-time-box span { font-size: 0.75rem; color: #94a3b8; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+        .sidebar-footer { margin-top: auto; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .footer-action-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; transition: all 0.3s ease; }
+        .footer-action-btn:hover { background: rgba(51, 65, 85, 0.8); color: #f8fafc; transform: translateY(-3px); }
+        .logout-btn-custom { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.1); }
+        .logout-btn-custom:hover { background: #ef4444; color: white; }
+
+        .collapse-btn { position: absolute; right: -12px; top: 45px; width: 24px; height: 24px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 60; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); transition: all 0.3s ease; }
+        .collapse-btn:hover { transform: scale(1.1); background: #2563eb; }
+
+        /* Light Theme Adaptation */
+        .light-theme .sidebar { background: #ffffff; border-right: 1px solid #f1f5f9; }
+        .light-theme .nav-item { color: #64748b; }
+        .light-theme .nav-item:hover { background: #f8fafc; color: #3b82f6; }
+        .light-theme .sidebar-time-box { background: #f8fafc; border-color: #f1f5f9; }
+        .light-theme .sidebar-title { color: #0f172a; }
+        .light-theme .sidebar-section-title { color: #cbd5e1; }
+        .light-theme .footer-action-btn { background: #f8fafc; border-color: #f1f5f9; }
+        .light-theme .collapse-btn { background: #3b82f6; }
+        
         .mission-card { background: rgba(30, 41, 59, 0.7); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s; }
         .mission-card:hover { border-color: #3b82f6; transform: translateY(-5px); background: rgba(30, 41, 59, 0.9); }
         
         /* Light Theme Styles (Trắng-Xanh) */
          .light-theme { background-color: #f8fafc; color: #1e293b; }
-         .light-theme .sidebar { background: #ffffff; border-right: 1px solid #e2e8f0; }
-         .light-theme .nav-item { color: #64748b; }
-         .light-theme .nav-item:hover { background: #eff6ff; color: #3b82f6; }
-         .light-theme .nav-item.active { background: #3b82f6; color: #ffffff; border-left-color: #1d4ed8; }
-         .light-theme .nav-item.active i { color: #ffffff; }
-         .light-theme .sidebar-title { color: #1e293b; }
-         .light-theme .sidebar-section-title { color: #3b82f6; }
-         .light-theme .sidebar-section-title::after { background: #e2e8f0; }
          .light-theme .glass-card, .light-theme .mission-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
          .light-theme .text-white { color: #1e293b !important; }
          .light-theme .text-slate-400, .light-theme .text-slate-500 { color: #64748b !important; }
          .light-theme .bg-slate-950, .light-theme .bg-slate-900, .light-theme .bg-slate-800 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
-         .light-theme .sidebar-logo { background: #3b82f6; }
+         .light-theme .sidebar-logo { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
          .light-theme .sidebar-time { color: #64748b; }
-         .light-theme .collapse-btn { background: #ffffff; border-color: #e2e8f0; color: #64748b; }
          .light-theme input, .light-theme select { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
          .light-theme .mission-card { border-style: solid; }
          .light-theme #settings-modal .glass-card, .light-theme #auth-modal .glass-card, .light-theme #mission-modal .glass-card { background: #ffffff; }
@@ -64,18 +79,18 @@
         .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
         .hidden { display: none; }
         @media (max-width: 1024px) { 
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px !important; }
+            .sidebar { transform: translateX(-100%); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 280px !important; }
             .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0 !important; padding: 1rem; }
+            .main-content { margin-left: 0 !important; padding: 1.5rem; }
             .mobile-menu-btn { display: block; }
             .glass-card { padding: 1.25rem !important; }
             h1 { font-size: 1.5rem !important; }
-            .sidebar-header { padding: 1rem; }
+            .sidebar-header { padding: 1.5rem; }
         }
         @media (min-width: 1025px) { .mobile-menu-btn { display: none; } }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -87,9 +102,8 @@
     <!-- SIDEBAR -->
     <aside class="sidebar flex flex-col">
         <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <span>LEP</span>
-                <span>PRO</span>
+            <div class="sidebar-logo-container">
+                <div class="sidebar-logo flex items-center justify-center">LEP</div>
             </div>
             <div class="sidebar-title">
                 LINK EARN
@@ -100,68 +114,69 @@
             </div>
         </div>
 
-        <div class="sidebar-time">
-            <i class="fa-regular fa-calendar-days"></i>
+        <div class="sidebar-time-box">
+            <i class="fa-regular fa-clock"></i>
             <span id="current-time-sidebar">2024-03-11 00:00:00</span>
         </div>
 
-        <div class="flex-1 overflow-y-auto custom-scrollbar">
+        <div class="flex-1 overflow-y-auto custom-scrollbar pb-6">
             <div class="nav-item active" onclick="showSection('home')">
-                <i class="fa-solid fa-gauge-high"></i> 
-                <span>Dashboard (Bảng Điều Khiển)</span>
+                <i class="fa-solid fa-grid-2"></i> 
+                <span>Bảng Điều Khiển</span>
             </div>
             <div class="nav-item" onclick="showSection('othersites')">
-                <i class="fa-solid fa-building-columns"></i>
-                <span>Other Sites To Earn Money / Những web/app khác kiếm thêm thu nhập</span>
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Kiếm Thêm Thu Nhập</span>
             </div>
             <div class="nav-item" onclick="showSection('affiliate')">
-                <i class="fa-solid fa-users"></i>
-                <span>Affiliate (Giới Thiệu Bạn Bè)</span>
+                <i class="fa-solid fa-user-group"></i>
+                <span>Giới Thiệu Bạn Bè</span>
             </div>
             <div class="nav-item" onclick="showSection('contest')">
-                <i class="fa-solid fa-trophy"></i>
-                <span>Contest (Đua Top Giới Thiệu)</span>
+                <i class="fa-solid fa-ranking-star"></i>
+                <span>Đua Top Nhận Thưởng</span>
             </div>
             <div class="nav-item" onclick="showSection('withdraw')">
-                <i class="fa-solid fa-wallet"></i>
-                <span>Rút Tiền (For VietNam)</span>
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                <span>Rút Tiền Hệ Thống</span>
             </div>
 
-            <div class="sidebar-section-title">Hệ Thống Link</div>
+            <div class="sidebar-section-title">Nhiệm Vụ & Link</div>
             
             <div class="nav-item" onclick="showSection('missions')">
-                <i class="fa-solid fa-list-check"></i>
-                <span>Missions (Làm Nhiệm Vụ)</span>
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Làm Nhiệm Vụ</span>
             </div>
             
             <div class="nav-item" onclick="showSection('shortlink')">
-                <i class="fa-solid fa-link"></i>
-                <span>Shortlink (Liên Kết Ngắn)</span>
+                <i class="fa-solid fa-link-slash"></i>
+                <span>Rút Gọn Link</span>
             </div>
 
-            <div class="sidebar-section-title">Advertiser</div>
+            <div class="sidebar-section-title">Nhà Quảng Cáo</div>
 
             <div class="nav-item" onclick="showSection('advertiser')">
-                <i class="fa-solid fa-bullhorn"></i>
-                <span>Advertiser</span>
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Mua Traffic</span>
             </div>
             <div class="nav-item" onclick="showSection('deposit')">
-                <i class="fa-solid fa-wallet"></i>
-                <span>Deposit (Nạp Tiền)</span>
+                <i class="fa-solid fa-building-columns"></i>
+                <span>Nạp Tiền Ads</span>
             </div>
 
             <div class="nav-item" id="adminBtnSide" style="display:none" onclick="showSection('admin')">
-                <i class="fa-solid fa-user-shield text-orange-500"></i> 
-                <span>Quản Trị Hệ Thống</span>
+                <i class="fa-solid fa-shield-halved text-orange-500"></i> 
+                <span>Quản Trị Viên</span>
             </div>
         </div>
 
         <div class="sidebar-footer">
-            <div class="settings-btn" onclick="toggleSettingsModal(true)">
-                <i class="fa-solid fa-gear"></i>
+            <div class="footer-action-btn" onclick="toggleSettingsModal(true)" title="Cài đặt">
+                <i class="fa-solid fa-sliders"></i>
             </div>
-            <div class="user-profile-btn" id="logoutBtn" title="Đăng xuất">
-                <i class="fa-solid fa-user text-white"></i>
+            <div class="flex-1"></div>
+            <div class="footer-action-btn logout-btn-custom" id="logoutBtn" title="Đăng xuất">
+                <i class="fa-solid fa-power-off"></i>
             </div>
         </div>
     </aside>
@@ -821,11 +836,21 @@
 
         collapseBtn.onclick = () => {
             const isCollapsed = sidebar.style.width === '80px';
-            sidebar.style.width = isCollapsed ? '300px' : '80px';
-            mainContent.style.marginLeft = isCollapsed ? '300px' : '80px';
-            sidebar.querySelectorAll('.nav-item span, .sidebar-title, .sidebar-section-title, .sidebar-time').forEach(el => {
+            const newWidth = isCollapsed ? '280px' : '80px';
+            sidebar.style.width = newWidth;
+            mainContent.style.marginLeft = newWidth;
+            
+            sidebar.querySelectorAll('.nav-item span, .sidebar-title, .sidebar-section-title, .sidebar-time-box').forEach(el => {
                 el.style.display = isCollapsed ? '' : 'none';
             });
+            
+            // Adjust margin for nav items when collapsed
+            sidebar.querySelectorAll('.nav-item').forEach(item => {
+                item.style.margin = isCollapsed ? '0.4rem 1rem' : '0.4rem 0.5rem';
+                item.style.justifyContent = isCollapsed ? 'flex-start' : 'center';
+                item.style.padding = isCollapsed ? '0.8rem 1.2rem' : '0.8rem 0';
+            });
+
             collapseBtn.querySelector('i').className = isCollapsed ? 'fa-solid fa-chevron-left' : 'fa-solid fa-chevron-right';
         };
 
