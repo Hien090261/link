@@ -134,7 +134,7 @@
                 <span>Missions (Làm Nhiệm Vụ)</span>
             </div>
             
-            <div class="nav-item" onclick="showSection('home')">
+            <div class="nav-item" onclick="showSection('shortlink')">
                 <i class="fa-solid fa-link"></i>
                 <span>Shortlink (Liên Kết Ngắn)</span>
             </div>
@@ -286,6 +286,33 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="mission-grid">
                 <!-- Mission cards will be loaded here -->
                 <div class="col-span-full py-20 text-center text-slate-500 italic">Đang tải nhiệm vụ...</div>
+            </div>
+        </section>
+
+        <!-- SECTION: SHORTLINK (LIÊN KẾT NGẮN) -->
+        <section id="shortlink-section" class="hidden space-y-8">
+            <div class="glass-card p-10 text-center space-y-6">
+                <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 text-3xl mx-auto"><i class="fa-solid fa-link"></i></div>
+                <h2 class="text-3xl font-black text-white">Tạo Liên Kết Ngắn</h2>
+                <p class="text-slate-400 max-w-lg mx-auto">Tạo link rút gọn của riêng bạn và chia sẻ để kiếm tiền từ mỗi lượt click.</p>
+                
+                <div class="max-w-2xl mx-auto p-6 bg-slate-900/50 rounded-2xl border border-slate-700 space-y-4 text-left">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Dán link gốc vào đây</label>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input type="url" id="targetUrlInput" placeholder="https://example.com/your-long-link" class="flex-1 bg-slate-800 border-none px-5 py-4 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="shortenBtn" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition">Rút Gọn</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="result" class="hidden max-w-2xl mx-auto p-6 bg-green-500/10 rounded-2xl border border-green-500/20 space-y-4 text-left">
+                    <p class="text-xs font-bold text-green-400 uppercase tracking-widest">Link rút gọn của bạn</p>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" id="shortUrlOutput" readonly class="flex-1 bg-slate-800 border-none px-5 py-4 rounded-xl text-blue-400 font-bold outline-none" value="">
+                        <button id="copyBtn" class="bg-green-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-green-700 transition">Copy</button>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -900,23 +927,34 @@
             }
         });
 
-        // Bỏ chức năng rút gọn link cũ vì đã chuyển sang Task Wall
-        /*
         document.getElementById('shortenBtn').onclick = async () => {
+            if (!auth.currentUser) return alert('Vui lòng đăng nhập để rút gọn link!');
             const url = document.getElementById('targetUrlInput').value;
             if (!url) return alert('Dán link vào đã!');
-            const doc = await db.collection('links').add({
-                target: url,
-                creator: auth.currentUser.email,
-                creatorId: auth.currentUser.uid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                clicks: 0
-            });
-            await db.collection('users').doc(auth.currentUser.uid).update({ totalLinks: firebase.firestore.FieldValue.increment(1) });
-            document.getElementById('shortUrlOutput').value = `${window.location.origin}${window.location.pathname}?id=${doc.id}`;
-            document.getElementById('result').classList.remove('hidden');
+            try {
+                const doc = await db.collection('links').add({
+                    target: url,
+                    creator: auth.currentUser.email,
+                    creatorId: auth.currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    clicks: 0
+                });
+                await db.collection('users').doc(auth.currentUser.uid).update({ 
+                    totalLinks: firebase.firestore.FieldValue.increment(1) 
+                });
+                document.getElementById('shortUrlOutput').value = `${window.location.origin}${window.location.pathname}?id=${doc.id}`;
+                document.getElementById('result').classList.remove('hidden');
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
         };
-        */
+
+        document.getElementById('copyBtn').onclick = () => {
+            const el = document.getElementById('shortUrlOutput');
+            el.select();
+            document.execCommand('copy');
+            alert('Đã copy link!');
+        };
 
         const params = new URLSearchParams(window.location.search);
         const linkId = params.get('id');
@@ -1231,6 +1269,7 @@
 
          async function updatePerformanceChart(userId) {
              const canvas = document.getElementById('performanceChart');
+             const loadingEl = document.getElementById('chart-loading');
              if (!canvas) return;
              
              if (typeof Chart === 'undefined') {
@@ -1252,7 +1291,7 @@
                          .where('createdAt', '>=', sevenDaysAgo)
                          .get();
                  } catch (e) {
-                     console.warn("Lỗi fetch dữ liệu biểu đồ:", e);
+                     console.warn("Lỗi fetch dữ liệu biểu đồ, thử lấy toàn bộ:", e);
                      historySnap = await db.collection('mission_history')
                          .where('userId', '==', userId)
                          .get();
@@ -1261,46 +1300,53 @@
                  const historyMap = {};
                  const recentActivityList = document.getElementById('recent-activity-list');
                  let recentHTML = '';
-                 let count = 0;
-
                  const docs = [];
-                 historySnap.forEach(doc => {
-                     const data = doc.data();
-                     if (data.createdAt) {
-                         const d = data.createdAt.toDate();
-                         const dStr = `${d.getDate()}/${d.getMonth()+1}`;
-                         historyMap[dStr] = (historyMap[dStr] || 0) + 1;
-                         docs.push({id: doc.id, ...data});
-                     }
-                 });
+
+                 if (historySnap && !historySnap.empty) {
+                     historySnap.forEach(doc => {
+                         const data = doc.data();
+                         if (data.createdAt) {
+                             const d = data.createdAt.toDate();
+                             const dStr = `${d.getDate()}/${d.getMonth()+1}`;
+                             historyMap[dStr] = (historyMap[dStr] || 0) + 1;
+                             docs.push({id: doc.id, ...data});
+                         }
+                     });
+                 }
 
                  // Render Recent Activity (top 5)
-                 docs.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate());
-                 const top5 = docs.slice(0, 5);
-                 if (top5.length > 0) {
-                    top5.forEach(act => {
-                        const d = act.createdAt.toDate();
-                        recentHTML += `
-                            <div class="flex justify-between items-center p-4 bg-slate-900/30 rounded-xl border border-slate-800 hover:border-blue-500 transition group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition">
-                                        <i class="fa-solid fa-circle-check"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold text-white uppercase tracking-widest">Nhiệm vụ #${act.id.substring(0,6)}</p>
-                                        <p class="text-[9px] text-slate-500">${d.toLocaleTimeString()} - ${d.toLocaleDateString()}</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-black text-green-400">+${act.reward.toFixed(2)}$</p>
-                                    <p class="text-[8px] text-slate-500 uppercase font-bold">Hoàn thành</p>
-                                </div>
-                            </div>
-                        `;
+                 if (recentActivityList) {
+                    docs.sort((a,b) => {
+                        const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                        const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                        return dateB - dateA;
                     });
-                    recentActivityList.innerHTML = recentHTML;
-                 } else {
-                    recentActivityList.innerHTML = '<p class="text-center text-slate-500 italic py-4 text-xs">Chưa có hoạt động nào hôm nay.</p>';
+                    const top5 = docs.slice(0, 5);
+                    if (top5.length > 0) {
+                        top5.forEach(act => {
+                            const d = act.createdAt.toDate();
+                            recentHTML += `
+                                <div class="flex justify-between items-center p-4 bg-slate-900/30 rounded-xl border border-slate-800 hover:border-blue-500 transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-white uppercase tracking-widest">Nhiệm vụ #${act.id.substring(0,6)}</p>
+                                            <p class="text-[9px] text-slate-500">${d.toLocaleTimeString()} - ${d.toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-black text-green-400">+${(act.reward || 0).toFixed(2)}$</p>
+                                        <p class="text-[8px] text-slate-500 uppercase font-bold">Hoàn thành</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        recentActivityList.innerHTML = recentHTML;
+                    } else {
+                        recentActivityList.innerHTML = '<p class="text-center text-slate-500 italic py-4 text-xs">Chưa có hoạt động nào hôm nay.</p>';
+                    }
                  }
 
                  const labels = [];
@@ -1313,10 +1359,11 @@
                      dataValues.push(historyMap[dStr] || 0);
                  }
 
-                 const loadingEl = document.getElementById('chart-loading');
                  if (loadingEl) loadingEl.style.display = 'none';
 
-                 if (performanceChart) performanceChart.destroy();
+                 if (performanceChart) {
+                     performanceChart.destroy();
+                 }
                  
                  const isDark = !document.documentElement.classList.contains('light-theme');
                  const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -1337,6 +1384,7 @@
                      options: {
                          responsive: true,
                          maintainAspectRatio: false,
+                         animation: { duration: 500 },
                          plugins: {
                              legend: { display: false },
                              tooltip: {
@@ -1352,7 +1400,7 @@
                                  beginAtZero: true,
                                  suggestedMax: 5,
                                  grid: { color: gridColor },
-                                 ticks: { color: textColor, stepSize: 1 }
+                                 ticks: { color: textColor, stepSize: 1, precision: 0 }
                              },
                              x: {
                                  grid: { display: false },
@@ -1363,6 +1411,7 @@
                  });
              } catch (e) {
                  console.error("Lỗi Dashboard:", e);
+                 if (loadingEl) loadingEl.textContent = "Lỗi khi tải biểu đồ: " + e.message;
              }
          }
 
@@ -1494,6 +1543,7 @@
             const titles = {
                 'home': 'Bảng Điều Khiển',
                 'missions': 'Làm Nhiệm Vụ',
+                'shortlink': 'Liên Kết Ngắn',
                 'affiliate': 'Giới Thiệu Bạn Bè',
                 'withdraw': 'Rút Tiền Hệ Thống',
                 'othersites': 'Kiếm Thêm Thu Nhập',
@@ -1508,10 +1558,6 @@
             if (name === 'admin') loadAdminLinks();
             if (name === 'home') {
                 loadDashboard();
-                // Redraw chart after a small delay to ensure container is visible and has size
-                setTimeout(() => {
-                    if (auth.currentUser) updatePerformanceChart(auth.currentUser.uid);
-                }, 300);
             }
             if (name === 'missions') loadMissions();
             if (name === 'affiliate') loadAffiliateData();
