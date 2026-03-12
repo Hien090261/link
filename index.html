@@ -233,53 +233,119 @@
 
         <!-- SECTION: DASHBOARD -->
         <section id="home-section" class="space-y-8">
-            <!-- New Stats Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-card p-6 flex items-center gap-4 border-b-4 border-blue-500">
-                    <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-500 text-2xl"><i class="fa-solid fa-calendar-check"></i></div>
-                    <div>
-                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Nhiệm vụ hôm nay</p>
-                        <h3 id="stat-today-tasks" class="text-2xl font-black text-white">0</h3>
-                    </div>
-                </div>
-                <div class="glass-card p-6 flex items-center gap-4 border-b-4 border-purple-500">
-                    <div class="p-4 bg-purple-500/10 rounded-2xl text-purple-500 text-2xl"><i class="fa-solid fa-list-check"></i></div>
-                    <div>
-                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Tổng nhiệm vụ</p>
-                        <h3 id="stat-total-tasks" class="text-2xl font-black text-white">0</h3>
-                    </div>
-                </div>
-                <div class="glass-card p-6 flex items-center gap-4 border-b-4 border-green-500">
-                    <div class="p-4 bg-green-500/10 rounded-2xl text-green-500 text-2xl"><i class="fa-solid fa-wallet"></i></div>
-                    <div>
-                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Số dư khả dụng</p>
-                        <h3 id="stat-earnings" class="text-2xl font-black text-white">0.00 $</h3>
-                    </div>
-                </div>
+            <!-- Announcement Bar -->
+            <div class="text-center py-4 space-y-1">
+                <p class="text-slate-400 text-sm">We recommend prioritizing shortlink tasks to maximize your earnings.</p>
+                <p class="text-blue-400 font-bold text-sm cursor-pointer hover:underline">LinkEarnPro Group Chat</p>
             </div>
 
-            <!-- Statistics Chart -->
-            <div class="glass-card p-8">
-                <div class="flex justify-between items-center mb-1">
-                    <h3 class="text-xl font-black text-white">Số liệu thống kê</h3>
-                    <div class="p-2 bg-slate-800 rounded-lg text-slate-400 cursor-pointer hover:text-white transition">
-                        <i class="fa-solid fa-calendar-days"></i>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Dashboard Column -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Stat Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Account Balance -->
+                        <div class="relative overflow-hidden rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                            <p class="text-[10px] font-bold uppercase opacity-80 mb-2">Account Balance (Số dư tài khoản)</p>
+                            <div class="flex items-end gap-2">
+                                <h3 id="stat-earnings" class="text-3xl font-black">0.00</h3>
+                                <span class="text-sm font-bold mb-1 opacity-80">$</span>
+                            </div>
+                            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                        </div>
+                        <!-- Deposit Balance -->
+                        <div class="relative overflow-hidden rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase opacity-80 mb-2">Deposit Balance (Số tiền nạp)</p>
+                                    <div class="flex items-end gap-2">
+                                        <h3 class="text-3xl font-black">0.00</h3>
+                                        <span class="text-sm font-bold mb-1 opacity-80">$</span>
+                                    </div>
+                                </div>
+                                <button onclick="showSection('deposit')" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-[10px] font-bold transition">Deposit</button>
+                            </div>
+                            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                        </div>
+                        <!-- Total Earned -->
+                        <div class="relative overflow-hidden rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                            <p class="text-[10px] font-bold uppercase opacity-80 mb-2">Total Earned (Tổng thu nhập)</p>
+                            <div class="flex items-end gap-2">
+                                <h3 id="stat-total-earned-large" class="text-3xl font-black">0.00</h3>
+                                <span class="text-sm font-bold mb-1 opacity-80">$</span>
+                            </div>
+                            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                        </div>
+                        <!-- Expense -->
+                        <div class="relative overflow-hidden rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase opacity-80 mb-2">Expense (Tổng tiền đã dùng)</p>
+                                    <div class="flex items-end gap-2">
+                                        <h3 class="text-3xl font-black">0.00</h3>
+                                        <span class="text-sm font-bold mb-1 opacity-80">$</span>
+                                    </div>
+                                </div>
+                                <button onclick="showSection('advertiser')" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-[10px] font-bold transition">Advertise</button>
+                            </div>
+                            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                        </div>
                     </div>
-                </div>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6">Cập nhật liên tục</p>
-                <div class="h-[400px] w-full overflow-x-auto custom-scrollbar bg-slate-900/30 rounded-xl relative">
-                    <div id="chart-loading" class="absolute inset-0 flex items-center justify-center text-slate-600 text-xs italic">Đang khởi tạo biểu đồ...</div>
-                    <div style="min-width: 800px; height: 100%;">
-                        <canvas id="performanceChart"></canvas>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Recent Activity -->
-            <div class="glass-card p-8">
-                <h3 class="text-xl font-black text-white mb-6">Nhiệm vụ vừa hoàn thành</h3>
-                <div id="recent-activity-list" class="space-y-4">
-                    <p class="text-center text-slate-500 italic py-4 text-xs">Chưa có hoạt động nào hôm nay.</p>
+                    <!-- Statistics Chart Section -->
+                    <div class="glass-card p-8">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                            <h3 class="text-xl font-black text-white">Statistics (Thống Kê)</h3>
+                            <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                                <div class="flex-1 md:flex-none">
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">Date Range</p>
+                                    <input type="text" value="7 Days Recently" readonly class="bg-slate-900/50 border border-slate-800 px-3 py-2 rounded-xl text-[10px] text-slate-300 outline-none w-full">
+                                </div>
+                                <div class="flex-1 md:flex-none">
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">Event Type</p>
+                                    <select class="bg-slate-900/50 border border-slate-800 px-3 py-2 rounded-xl text-[10px] text-slate-300 outline-none w-full">
+                                        <option>All Missions</option>
+                                        <option>Shortlinks</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-[300px] w-full bg-slate-900/30 rounded-xl relative">
+                            <div id="chart-loading" class="absolute inset-0 flex items-center justify-center text-slate-600 text-xs italic">Đang khởi tạo biểu đồ...</div>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar Column -->
+                <div class="space-y-8">
+                    <!-- Quick Withdraw -->
+                    <div class="glass-card p-8">
+                        <h3 class="text-lg font-black text-white mb-6">Withdraw (Rút Tiền)</h3>
+                        <div class="space-y-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Withdraw Method</label>
+                                <select id="quickWithdrawMethod" class="w-full bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl text-xs text-white outline-none focus:border-blue-500">
+                                    <option value="Momo">Ví Momo (VN)</option>
+                                    <option value="Bank">Ngân Hàng (VN)</option>
+                                    <option value="ZaloPay">ZaloPay (VN)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount (USD)</label>
+                                <input type="number" id="quickWithdrawAmount" placeholder="Min 2.00 $" class="w-full bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl text-xs text-white outline-none focus:border-blue-500">
+                            </div>
+                            <button onclick="showSection('withdraw')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl text-xs shadow-xl shadow-blue-500/10 transition uppercase">Go to Withdraw Page</button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="glass-card p-8">
+                        <h3 class="text-lg font-black text-white mb-6">Recent Activity</h3>
+                        <div id="recent-activity-list" class="space-y-4">
+                            <p class="text-center text-slate-500 italic py-4 text-[10px]">Chưa có hoạt động nào.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -948,7 +1014,9 @@
                 
                 // Reset stats
                 const statEarnings = document.getElementById('stat-earnings');
-                if (statEarnings) statEarnings.textContent = '0.00 $';
+                if (statEarnings) statEarnings.textContent = '0.00';
+                const statTotalEarned = document.getElementById('stat-total-earned-large');
+                if (statTotalEarned) statTotalEarned.textContent = '0.00';
             }
         });
 
@@ -1277,17 +1345,13 @@
             const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
             const userData = userDoc.data();
             if (userData) {
-                document.getElementById('stat-earnings').textContent = (userData.balance || 0).toFixed(2) + ' $';
-                document.getElementById('stat-total-tasks').textContent = userData.totalClicks || 0;
+                // Update new stat cards
+                const earningsEl = document.getElementById('stat-earnings');
+                if (earningsEl) earningsEl.textContent = (userData.balance || 0).toFixed(2);
                 
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const todaySnap = await db.collection('mission_history')
-                    .where('userId', '==', auth.currentUser.uid)
-                    .where('createdAt', '>=', today)
-                    .get();
-                document.getElementById('stat-today-tasks').textContent = todaySnap.size;
-
+                const totalEarnedEl = document.getElementById('stat-total-earned-large');
+                if (totalEarnedEl) totalEarnedEl.textContent = (userData.totalEarned || (userData.balance || 0)).toFixed(2);
+                
                 updatePerformanceChart(auth.currentUser.uid);
             }
         }
