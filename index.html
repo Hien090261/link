@@ -410,9 +410,15 @@
                                 <option value="PVcomBank">PVcomBank</option>
                             </select>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Thông Tin Tài Khoản (SĐT / STK / Tên)</label>
-                            <input type="text" id="withdrawAccount" placeholder="Ví dụ: 0987654321 - NGUYEN VAN A" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label id="accountLabel" class="text-xs font-bold text-slate-500 uppercase tracking-widest">Số Điện Thoại</label>
+                                <input type="text" id="withdrawAccount" placeholder="Ví dụ: 0987654321" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tên Tài Khoản (Viết Hoa)</label>
+                                <input type="text" id="withdrawName" placeholder="Ví dụ: NGUYEN VAN A" class="w-full bg-slate-900 border border-slate-700 px-5 py-4 rounded-2xl text-white outline-none focus:border-blue-500">
+                            </div>
                         </div>
                         <button id="withdrawSubmitBtn" class="w-full accent-gradient font-black py-5 rounded-2xl text-white shadow-xl shadow-blue-500/20 hover:scale-[1.02] transition">GỬI YÊU CẦU RÚT TIỀN</button>
                     </div>
@@ -1017,6 +1023,7 @@
                      <td class="py-4 px-4">
                          <div class="text-[10px] text-slate-500 font-bold uppercase">${data.method}${data.bankName ? ` (${data.bankName})` : ''}</div>
                          <div class="text-sm text-slate-300 font-mono">${data.account}</div>
+                         <div class="text-[10px] text-blue-400 font-bold">${data.accountName || ''}</div>
                      </td>
                      <td class="py-4 px-4 ${statusClass} font-bold text-xs">${data.status}</td>
                      <td class="py-4 px-4 flex gap-2">
@@ -1589,7 +1596,8 @@
                     tr.className = "border-b border-slate-800";
                     const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
                     const methodInfo = data.bankName ? `${data.method} (${data.bankName})` : data.method;
-                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold text-green-400">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400">${methodInfo}</td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
+                    const accountInfo = `${data.account} - ${data.accountName || ''}`;
+                    tr.innerHTML = `<td class="py-4 px-4">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td><td class="py-4 px-4 font-bold text-green-400">${data.amount.toFixed(2)} $</td><td class="py-4 px-4 text-slate-400 text-xs">${methodInfo}<br><span class="text-[10px] opacity-60">${accountInfo}</span></td><td class="py-4 px-4 ${statusClass} font-bold">${data.status}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -1598,10 +1606,17 @@
         // Logic ẩn/hiện chọn bank
         document.getElementById('withdrawMethod').onchange = (e) => {
             const container = document.getElementById('bankSelectContainer');
+            const accountLabel = document.getElementById('accountLabel');
+            const accountInput = document.getElementById('withdrawAccount');
+            
             if (e.target.value === 'Bank') {
                 container.classList.remove('hidden');
+                accountLabel.textContent = 'Số Tài Khoản';
+                accountInput.placeholder = 'Ví dụ: 123456789';
             } else {
                 container.classList.add('hidden');
+                accountLabel.textContent = 'Số Điện Thoại';
+                accountInput.placeholder = 'Ví dụ: 0987654321';
             }
         };
 
@@ -1609,10 +1624,11 @@
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             const account = document.getElementById('withdrawAccount').value;
+            const name = document.getElementById('withdrawName').value;
             const bankName = document.getElementById('bankName').value;
 
             if (!amount || amount < 2) return alert('Số tiền rút tối thiểu là 2.00 $');
-            if (!account) return alert('Vui lòng nhập thông tin tài khoản nhận tiền!');
+            if (!account || !name) return alert('Vui lòng nhập đầy đủ thông tin tài khoản và tên!');
             
             if (method === 'Bank' && !bankName) {
                 return alert('Vui lòng chọn ngân hàng!');
@@ -1631,6 +1647,7 @@
                     amount: amount,
                     method: method,
                     account: account,
+                    accountName: name,
                     status: 'Đang xử lý',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
@@ -1646,6 +1663,7 @@
                 alert('Yêu cầu đã được gửi! Vui lòng chờ xử lý.');
                 document.getElementById('withdrawAmount').value = '';
                 document.getElementById('withdrawAccount').value = '';
+                document.getElementById('withdrawName').value = '';
                 document.getElementById('bankName').value = '';
                 document.getElementById('bankSelectContainer').classList.add('hidden');
                 loadWithdrawData();
