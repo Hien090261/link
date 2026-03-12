@@ -1585,31 +1585,62 @@
             const balance = userDoc.data()?.balance || 0;
             document.getElementById('withdraw-balance').textContent = balance.toFixed(2) + ' $';
 
-            const snap = await db.collection('withdrawals').where('userId', '==', auth.currentUser.uid).orderBy('createdAt', 'desc').get();
             const tbody = document.getElementById('withdraw-table-body');
-            if (snap.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>';
-            } else {
-                tbody.innerHTML = '';
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
-                    const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
-                    const methodInfo = data.bankName ? `Ngân hàng (${data.bankName})` : data.method;
-                    const accountInfo = `<div class="font-bold text-white text-xs">${data.account}</div><div class="text-[9px] text-blue-400 uppercase font-bold">${data.accountName || ''}</div>`;
+            tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-slate-500 italic">Đang tải lịch sử...</td></tr>';
+
+            try {
+                // Thử lấy có sắp xếp (yêu cầu index Firestore)
+                let snap;
+                try {
+                    snap = await db.collection('withdrawals')
+                        .where('userId', '==', auth.currentUser.uid)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                } catch (e) {
+                    console.warn("Truy vấn có sắp xếp thất bại, thử lấy không sắp xếp:", e);
+                    // Nếu lỗi (thường là do thiếu index), lấy không sắp xếp rồi sort bằng JS
+                    snap = await db.collection('withdrawals')
+                        .where('userId', '==', auth.currentUser.uid)
+                        .get();
+                }
+
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-slate-500">Chưa có giao dịch nào.</td></tr>';
+                } else {
+                    let docs = [];
+                    snap.forEach(doc => docs.push({id: doc.id, ...doc.data()}));
                     
-                    tr.innerHTML = `
-                        <td class="py-4 px-4 text-xs text-slate-400">${new Date(data.createdAt.seconds*1000).toLocaleDateString()}</td>
-                        <td class="py-4 px-4 font-black text-green-400">${data.amount.toFixed(2)} $</td>
-                        <td class="py-4 px-4">
-                            <span class="text-[10px] font-bold text-slate-300 uppercase">${methodInfo}</span>
-                        </td>
-                        <td class="py-4 px-4">${accountInfo}</td>
-                        <td class="py-4 px-4 text-center ${statusClass} font-black text-xs uppercase tracking-widest">${data.status}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                    // Sắp xếp thủ công bằng JS nếu Firebase không sort được (để chắc chắn luôn có dữ liệu hiện lên)
+                    docs.sort((a, b) => {
+                        const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                        const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                        return dateB - dateA;
+                    });
+
+                    tbody.innerHTML = '';
+                    docs.forEach(data => {
+                        const tr = document.createElement('tr');
+                        tr.className = "border-b border-slate-800 hover:bg-slate-800/30 transition";
+                        const statusClass = data.status === 'Hoàn thành' ? 'text-green-400' : (data.status === 'Từ chối' ? 'text-red-400' : 'text-orange-400');
+                        const methodInfo = data.bankName ? `Ngân hàng (${data.bankName})` : data.method;
+                        const accountInfo = `<div class="font-bold text-white text-xs">${data.account}</div><div class="text-[9px] text-blue-400 uppercase font-bold">${data.accountName || ''}</div>`;
+                        const dateStr = data.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString() : 'Đang xử lý...';
+                        
+                        tr.innerHTML = `
+                            <td class="py-4 px-4 text-xs text-slate-400">${dateStr}</td>
+                            <td class="py-4 px-4 font-black text-green-400">${data.amount.toFixed(2)} $</td>
+                            <td class="py-4 px-4">
+                                <span class="text-[10px] font-bold text-slate-300 uppercase">${methodInfo}</span>
+                            </td>
+                            <td class="py-4 px-4">${accountInfo}</td>
+                            <td class="py-4 px-4 text-center ${statusClass} font-black text-xs uppercase tracking-widest">${data.status}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi khi tải lịch sử rút tiền:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-red-500">Lỗi khi tải dữ liệu. Hãy tải lại trang!</td></tr>';
             }
         }
 
