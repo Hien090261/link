@@ -243,23 +243,17 @@
                 </div>
             </div>
 
-            <!-- Performance Chart Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="glass-card p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-black text-white">Thống kê 24 giờ qua</h3>
-                        <div class="text-[10px] text-blue-500 font-bold italic">Check vi phạm tự động!</div>
-                    </div>
-                    <div class="h-[300px]">
-                        <canvas id="hourlyChart"></canvas>
+            <!-- Statistics Chart -->
+            <div class="glass-card p-8">
+                <div class="flex justify-between items-center mb-1">
+                    <h3 class="text-xl font-black text-white">Số liệu thống kê</h3>
+                    <div class="p-2 bg-slate-800 rounded-lg text-slate-400 cursor-pointer hover:text-white transition">
+                        <i class="fa-solid fa-calendar-days"></i>
                     </div>
                 </div>
-                <div class="glass-card p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-black text-white">Hiệu suất 7 ngày qua</h3>
-                        <div class="text-[10px] text-pink-500 font-bold italic">Tăng trưởng thu nhập</div>
-                    </div>
-                    <div class="h-[300px]">
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6">Cập nhật liên tục</p>
+                <div class="h-[400px] w-full overflow-x-auto custom-scrollbar">
+                    <div style="min-width: 800px; height: 100%;">
                         <canvas id="performanceChart"></canvas>
                     </div>
                 </div>
@@ -1190,59 +1184,107 @@
                     .get();
                 document.getElementById('stat-today-tasks').textContent = todaySnap.size;
 
-                // Vẽ các biểu đồ
-                updateHourlyChart(auth.currentUser.uid);
+                // Vẽ biểu đồ 30 ngày
                 updatePerformanceChart(auth.currentUser.uid);
             }
         }
 
-        async function updateHourlyChart(userId) {
-            const ctx = document.getElementById('hourlyChart').getContext('2d');
+        async function updatePerformanceChart(userId) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
             const labels = [];
             const dataValues = [];
 
-            // Lấy dữ liệu 24 giờ qua (chia theo block 2h)
+            // Lấy dữ liệu 30 ngày qua
             const now = new Date();
-            for (let i = 11; i >= 0; i--) {
-                const hourDate = new Date(now.getTime() - (i * 2 * 60 * 60 * 1000));
-                labels.push(`${hourDate.getHours()}h`);
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                
+                // Format YYYY-MM-DD
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                labels.push(`${year}-${month}-${day}`);
 
-                const startOfBlock = new Date(hourDate);
-                startOfBlock.setMinutes(0, 0, 0);
-                const endOfBlock = new Date(startOfBlock.getTime() + (2 * 60 * 60 * 1000));
+                const startOfDay = new Date(date);
+                startOfDay.setHours(0,0,0,0);
+                const endOfDay = new Date(date);
+                endOfDay.setHours(23,59,59,999);
 
                 const snap = await db.collection('mission_history')
                     .where('userId', '==', userId)
-                    .where('createdAt', '>=', startOfBlock)
-                    .where('createdAt', '<', endOfBlock)
+                    .where('createdAt', '>=', startOfDay)
+                    .where('createdAt', '<=', endOfDay)
                     .get();
                 dataValues.push(snap.size);
             }
 
-            if (hourlyChart) hourlyChart.destroy();
+            if (performanceChart) performanceChart.destroy();
 
             const isDark = !document.documentElement.classList.contains('light-theme');
             const textColor = isDark ? '#94a3b8' : '#64748b';
-            const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            const lineColor = '#3b82f6';
 
-            hourlyChart = new Chart(ctx, {
-                type: 'bar',
+            performanceChart = new Chart(ctx, {
+                type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Nhiệm vụ',
                         data: dataValues,
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 5,
+                        borderColor: lineColor,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0, // Đường thẳng tắp giống Minuc
+                        pointBackgroundColor: lineColor,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                            titleColor: isDark ? '#ffffff' : '#1e293b',
+                            bodyColor: isDark ? '#ffffff' : '#1e293b',
+                            borderColor: lineColor,
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Nhiệm vụ: ${context.parsed.y.toFixed(1)}`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: { 
+                                color: textColor, 
+                                font: { size: 10 },
+                                stepSize: 0.2
+                            }
+                        },
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { 
+                                color: textColor, 
+                                font: { size: 10 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
                     }
                 }
             });
